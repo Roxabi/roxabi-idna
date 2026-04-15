@@ -49,7 +49,6 @@ class IconSetTemplate(BaseTemplate):
         cr = p["corner_radius"]
         fill = p["fill"]
         size = p["size"]
-        anchor = node.get("anchor", "Icons")
 
         def icon(path_d, label):
             opacity = "0.2" if fill == "duotone" else "1"

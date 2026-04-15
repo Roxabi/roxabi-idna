@@ -15,3 +15,7 @@ build/
 
 # OS
 .DS_Store
+
+# dev-core (local config — stack.yml IS committed per Roxabi convention)
+.env
+.claude/dev-core.yml

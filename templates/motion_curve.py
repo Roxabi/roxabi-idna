@@ -56,7 +56,6 @@ class MotionCurveTemplate(BaseTemplate):
         dur = p["duration"]
         stagger = p["stagger"]
         easing = f"cubic-bezier({x1},{y1},{x2},{y2})"
-        anchor = node.get("anchor", "Motion")
 
         html = f"""<!DOCTYPE html>
 <html>

@@ -33,7 +33,7 @@ class BaseTemplate(ABC):
         """Negative prompt for image generation. Override in subclasses."""
         return ""
 
-    def render_sync(self, node: dict, session_dir: Path, vocabulary: dict) -> Path:
+    def render_sync(self, node: dict, session_dir: Path, vocabulary: dict) -> Path | None:
         """Synchronously render inline templates. Default: None (external rendering)."""
         return None
 

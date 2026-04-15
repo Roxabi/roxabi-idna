@@ -111,6 +111,8 @@ def build_tree(session_dir: Path, depth: int) -> None:
             if node_id in nodes:
                 continue
             parent_id = node_parent(node_id)
+            if parent_id is None:
+                continue  # round >= 1 nodes always have a parent; skip defensively
             suffix = node_id.rsplit("-", 1)[1]
             child_index = _CHILD_SUFFIXES.index(suffix) if suffix in _CHILD_SUFFIXES else 0
             parent_params = nodes[parent_id]["params"]
@@ -139,7 +141,7 @@ def build_tree(session_dir: Path, depth: int) -> None:
     print(f"  → {len(nodes)} nodes built from vocabulary")
 
     # Write job files
-    print(f"\nWriting job files...")
+    print("\nWriting job files...")
     for nid, node in nodes.items():
         round_num = node["round"]
         prompts_dir = session_dir / f"round_{round_num}" / "prompts"
@@ -198,8 +200,8 @@ def build_tree(session_dir: Path, depth: int) -> None:
     print(f"Template: {template_name} ({tmpl.artifact_type}), width={width}")
 
     if tmpl.artifact_type == "image":
-        print(f"\nNext steps:")
-        print(f"  1. make idna start  (server encodes+generates lazily per pick)")
+        print("\nNext steps:")
+        print("  1. make idna start  (server encodes+generates lazily per pick)")
         print(f"  2. open http://localhost:8082/{session_dir.parent.name}/{session_dir.name}/")
 
 

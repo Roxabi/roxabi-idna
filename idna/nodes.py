@@ -63,6 +63,7 @@ def _blend_pole_embeds(sdir: Path, node_id: str, session: dict) -> bool:
     # For wildcard: use all axes (no specific direction).
     import re as _re
     mutation = node.get("mutation", "")
+    varied: list[str] = []
     if mutation.startswith("axis:"):
         varied = _re.findall(r'(\w+):[+-]1', mutation[5:])
         active_indices = [i for i, a in enumerate(axis_names) if a in varied]
@@ -284,7 +285,7 @@ def _create_child_nodes(
                 for k in _axis_names_local
             }
             if deltas:
-                pbo_p["varied_axis"] = max(deltas, key=deltas.get)
+                pbo_p["varied_axis"] = max(deltas, key=lambda k: deltas[k])
             nodes[child_id] = {
                 "id": child_id,
                 "round": child_round,

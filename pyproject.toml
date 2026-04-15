@@ -6,3 +6,34 @@ dependencies = [
     "numpy>=1.26",
     "scipy>=1.12",
 ]
+
+[dependency-groups]
+dev = [
+    "pip-licenses>=5.5.5",
+    "pre-commit>=4.5.1",
+    "pyright>=1.1.408",
+    "pytest>=9.0.3",
+    "ruff>=0.15.10",
+]
+
+[tool.pyright]
+# These scripts run under imageCLI's venv (see PEP 723 shebang), so their
+# heavy ML deps (torch, diffusers, optimum.quanto, PIL) aren't resolvable here.
+exclude = [
+    "idna_encode_all.py",
+    "idna_generate_round.py",
+    ".venv",
+    "**/__pycache__",
+]
+
+[tool.ruff.lint]
+# `l` is standard notation for lightness (HSL/Lab), Cholesky factor, λ.
+ignore = ["E741"]
+
+[tool.ruff.lint.per-file-ignores]
+# Template registry + conditional imports after runtime setup.
+"templates/__init__.py" = ["E402"]
+"templates/base.py" = ["E402"]
+# Tight color-space conversion code with one-line guards.
+"templates/color_palette.py" = ["E701"]
+

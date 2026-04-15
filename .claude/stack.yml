@@ -1,0 +1,69 @@
+# .claude/stack.yml — dev-core stack configuration for roxabi-idna
+# DO NOT commit this file. Commit stack.yml.example instead.
+
+schema_version: "1.0"
+
+runtime: python
+package_manager: uv
+
+backend:
+  framework: none
+  orm: none
+  path: .
+
+frontend:
+  framework: none
+  path: ""
+
+build:
+  orchestrator: none
+  formatter: ruff
+  formatter_config: pyproject.toml
+  formatter_fix_cmd: "uv run ruff format"
+
+testing:
+  unit: pytest
+  e2e: none
+
+hooks:
+  tool: pre-commit
+
+lsp:
+  enabled: true
+  server: pyright
+
+deploy:
+  platform: none
+  secrets_cmd: ""
+
+docs:
+  framework: none
+  path: docs
+  format: md
+
+commands:
+  dev: "uv run python idna_server.py"
+  build: "uv build"
+  test: "uv run pytest"
+  lint: "uv run ruff check"
+  typecheck: "uv run pyright"
+  format: "uv run ruff format"
+  install: "uv sync"
+
+artifacts:
+  analyses: artifacts/analyses
+  specs: artifacts/specs
+  frames: artifacts/frames
+  plans: artifacts/plans
+
+standards:
+  backend: docs/standards/backend-patterns.md
+  testing: docs/standards/testing.md
+  code_review: docs/standards/code-review.md
+  architecture: docs/architecture/
+  configuration: docs/configuration.md
+  deployment: docs/guides/deployment.md
+  troubleshooting: docs/guides/troubleshooting.md
+  issue_management: docs/processes/issue-management.md
+  dev_process: docs/processes/dev-process.md
+  contributing: docs/contributing.md

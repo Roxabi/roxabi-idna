@@ -107,7 +107,7 @@ class PreferenceGP:
 
     def predict(self, X_new: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """Posterior mean and variance at new points (N_new, d)."""
-        if self._X is None or self._f_map is None:
+        if self._X is None or self._f_map is None or self._K_inv is None:
             return np.zeros(len(X_new)), np.ones(len(X_new))
 
         K_s = _rbf_kernel(X_new, self._X, self.length_scale, self.sigma_f)   # (N_new, N)

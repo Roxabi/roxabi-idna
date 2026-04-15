@@ -132,8 +132,8 @@ def encode_all(session_dir: Path) -> None:
     session_file.write_text(json.dumps(session, indent=2))
     print(f"Updated session.json — {len(encoded_ids)} nodes marked 'encoded'")
     print(f"gen_status: {session['gen_status']}")
-    print(f"\nStart server to begin image generation:")
-    print(f"  uv run idna_server.py")
+    print("\nStart server to begin image generation:")
+    print("  uv run idna_server.py")
 
 
 def main() -> None:
