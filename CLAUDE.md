@@ -36,7 +36,7 @@ make idna ls         # list sessions in $IDNA_DATA
 
 ## Critical Rules
 
-### TL;DR
+## TL;DR
 
 - **Project:** roxabi-idna
 - **Before work:** Use `/dev #N` as the single entry point — it determines tier (S / F-lite / F-full) and drives the full lifecycle
