@@ -34,58 +34,12 @@ make idna logs       # follow stdout
 make idna ls         # list sessions in $IDNA_DATA
 ```
 
-## Critical Rules
-
 ## TL;DR
 
 - **Project:** roxabi-idna
-- **Before work:** Use `/dev #N` as the single entry point — it determines tier (S / F-lite / F-full) and drives the full lifecycle
-- **All code changes** → worktree: `git worktree add ../roxabi-idna-XXX -b feat/XXX-slug staging`
-- **Always** `AskUserQuestion` for choices — never plain-text questions
+- **Before work:** Use `/dev #N` as the single entry point — it determines tier and drives the full lifecycle
 - **Never** commit without asking, push without request, or use `--force`/`--hard`/`--amend`
 - **Always** use appropriate skill even without slash command
-
-### 1. Dev Process
-
-**Entry point: `/dev #N`** — single command that scans artifacts, shows progress, and delegates to the right phase skill.
-
-| Tier | Criteria | Phases |
-|------|----------|--------|
-| **S** | ≤3 files, no arch, no risk | triage → implement → pr → validate → review → fix* → cleanup* |
-| **F-lite** | Clear scope, single domain | Frame → spec → plan → implement → verify → ship |
-| **F-full** | New arch, unclear reqs, >2 domains | Frame → analyze → spec → plan → implement → verify → ship |
-
-`*` = conditional (runs only if applicable)
-
-Phases: **Frame** (problem) → **Shape** (spec) → **Build** (code) → **Verify** (review) → **Ship** (release).
-
-### 2. AskUserQuestion
-
-Always `AskUserQuestion` for: decisions, choices (≥2 options), approach proposals.
-**Never** plain-text "Do you want..." / "Should I..." → use the tool.
-
-### 3. Git
-
-Format: `<type>(<scope>): <desc>` + `Co-Authored-By: Claude <model> <noreply@anthropic.com>`
-Types: feat|fix|refactor|docs|style|test|chore|ci|perf
-Never push without request. Never force/hard/amend. Hook fail → fix + NEW commit.
-
-### 4. Artifact Model
-
-Artifacts are the state markers `/dev` uses for progress detection and resumption.
-
-| Type | Directory | Question answered |
-|------|-----------|-------------------|
-| **Frame** | `artifacts/frames/` | What's the problem? |
-| **Analysis** | `artifacts/analyses/` | How deep is it? |
-| **Spec** | `artifacts/specs/` | What will we build? |
-| **Plan** | `artifacts/plans/` | How do we build it? |
-
-### 5. Coding Standards
-
-| Context | Read |
-|---------|------|
-| Tests | [testing](docs/standards/testing.md) |
 
 ## Gotchas
 
