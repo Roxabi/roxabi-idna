@@ -61,7 +61,7 @@ standards:
   testing: docs/standards/testing.md
   code_review: docs/standards/code-review.md
   architecture: docs/architecture/
-  configuration: docs/configuration.md
+  configuration: docs/standards/configuration.md
   deployment: docs/guides/deployment.md
   troubleshooting: docs/guides/troubleshooting.md
   issue_management: docs/processes/issue-management.md
