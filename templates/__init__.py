@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import os
 from pathlib import Path
 
 log = logging.getLogger("idna")
@@ -25,11 +24,11 @@ _PY_TEMPLATES: dict[str, type] = {
     "motion-curve": MotionCurveTemplate,
 }
 
-# TOML types directory: IDNA_DIR/types/*.toml
+# TOML types directory: IDNA_DIR/types/*.toml (lives alongside the code, in the repo).
 # Resolved lazily so IDNA_DIR is available at call time.
 def _types_dir() -> Path:
-    idna_dir = Path(os.environ.get("IDNA_DIR", Path.home() / ".roxabi" / "idna"))
-    return idna_dir / "types"
+    from idna.config import IDNA_DIR
+    return IDNA_DIR / "types"
 
 
 def get_template(name: str):

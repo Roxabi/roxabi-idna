@@ -9,9 +9,13 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("idna")
 
-# Root directory: ~/.roxabi/idna/ (where sessions live and templates/ resides)
-# idna_server.py lives at the root of that directory; the package is one level below.
-IDNA_DIR = Path(os.environ["IDNA_DIR"]) if "IDNA_DIR" in os.environ else Path.home() / ".roxabi" / "idna"
+# Code root (repo): idna_server.py, templates/, types/, setup scripts.
+# Defaults to the repo root inferred from this file's location; override with IDNA_DIR.
+IDNA_DIR = Path(os.environ["IDNA_DIR"]) if "IDNA_DIR" in os.environ else Path(__file__).resolve().parent.parent
+
+# Session data root (writable runtime state: per-project/per-subject session dirs).
+# Override with IDNA_DATA.
+IDNA_DATA = Path(os.environ["IDNA_DATA"]) if "IDNA_DATA" in os.environ else Path.home() / ".roxabi" / "idna"
 
 IMAGECLI_PROJECT = Path.home() / "projects" / "imageCLI"
 

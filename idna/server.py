@@ -8,7 +8,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from .api import handle_back, handle_delete, handle_finalize, handle_nudge, handle_pick, handle_reset, handle_reroll
 from .api_new import handle_new
-from .config import IDNA_DIR, MIME, log
+from .config import IDNA_DATA, IDNA_DIR, MIME, log
 from .daemon import _daemon_ping
 from .generation import _ensure_worker, _get_artifact_type
 from .html_index import _index_html
@@ -143,7 +143,8 @@ def main() -> None:
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8082
     server = HTTPServer(("localhost", port), IDNAHandler)
     log.info("IDNA server on http://localhost:%d/", port)
-    log.info("Sessions root: %s", IDNA_DIR)
+    log.info("Code root:     %s", IDNA_DIR)
+    log.info("Sessions root: %s", IDNA_DATA)
     sessions = discover_sessions()
     for s in sessions:
         gen_s = s.get("gen_status", s.get("status", "?"))

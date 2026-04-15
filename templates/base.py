@@ -193,7 +193,7 @@ from pathlib import Path as _Path
 
 class TomlAxisTemplate(AxisTemplate):
     """
-    AxisTemplate loaded from a TOML config file in IDNA_DIR/types/.
+    AxisTemplate loaded from a TOML config file in IDNA_DIR/types/ (repo-relative).
 
     Auto-discovered: dropping a new .toml file in types/ creates a new type
     without any code change. Axes can be edited at any time — reloaded on

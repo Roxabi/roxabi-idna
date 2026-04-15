@@ -6,13 +6,20 @@ Shared operational details for all idna skills. Read this once per invocation.
 
 ## Directory Layout
 
+Code and session data are split, mirroring the `roxabi-forge` pattern.
+
 ```
-~/.roxabi/idna/                        ← IDNA root (never deployed, local only)
+~/projects/roxabi-idna/                ← code (IDNA_DIR, this repo)
+  idna_server.py                       ← HTTP server (API + static files, port 8082)
+  idna-template.html                   ← browser picker
+  idna_generate_round.py               ← 2-phase image gen (imageCLI)
+  idna_build_tree.py  idna_encode_all.py  idna_setup.py
+  idna/                                ← Python package
+  templates/  types/                   ← template code + TOML type configs
+
+~/.roxabi/idna/                        ← session data (IDNA_DATA, local only, never deployed)
   <project>/<subject>/
     session.json                       ← state machine
-    idna_server.py                     ← HTTP server (API + static files, port 8082)
-    idna-template.html                 ← browser picker (copied from plugin references)
-    idna-generate-round.py             ← 2-phase image gen (imageCLI, images only)
     round_0/
       v0.png … v3.png                  ← explore variants
       prompts/v0.json … v3.json        ← job files
@@ -21,6 +28,8 @@ Shared operational details for all idna skills. Read this once per invocation.
       va.png  vb.png  vc.png           ← amplify / blend / refine
       prompts/  embeds/
 ```
+
+Override with env: `IDNA_DIR` (code root) and `IDNA_DATA` (session root).
 
 **Never inside `~/.roxabi/forge/`** — forge is Cloudflare-deployed. IDNA is local-only.
 
@@ -46,7 +55,7 @@ supervisorctl status idna-lyra-avatar
 supervisorctl tail -f idna-lyra-avatar
 ```
 
-Conf lives at: `~/projects/lyra-stack/conf.d/idna.conf`  
+Conf lives at: `~/projects/conf.d/idna.conf`  
 `autostart=false` — start manually when needed, stop when done.
 
 ---
@@ -92,7 +101,7 @@ ready → (pick) → generating → (done) → ready (next round)
 
 | Type | Generator | Notes |
 |------|-----------|-------|
-| Image | `idna-generate-round.py` + imageCLI FLUX.2-klein | 2-phase: encode all → generate all |
+| Image | `idna_generate_round.py` + imageCLI FLUX.2-klein | 2-phase: encode all → generate all |
 | Voice | voiceCLI (future) | Replace generation subprocess |
 | Text | inline in session.json (future) | No generation step |
 
@@ -106,7 +115,7 @@ Detect project + subject from ARGS or cwd:
 3. `pyproject.toml` → `[project] name`
 4. Ask if ambiguous
 
-Session dir: `~/.roxabi/idna/<project>/<subject>/`
+Session dir: `$IDNA_DATA/<project>/<subject>/` (default `~/.roxabi/idna/`)
 
 ---
 

@@ -6,7 +6,7 @@ import json
 import threading
 from pathlib import Path
 
-from .config import IDNA_DIR
+from .config import IDNA_DATA
 
 _locks: dict[str, threading.Lock] = {}
 _workers: dict[str, threading.Thread] = {}
@@ -24,7 +24,7 @@ def _lock(project: str, subject: str) -> threading.Lock:
 
 
 def _session_dir(project: str, subject: str) -> Path:
-    return IDNA_DIR / project / subject
+    return IDNA_DATA / project / subject
 
 
 def _session_file(project: str, subject: str) -> Path:
@@ -47,7 +47,7 @@ def _is_new_format(session: dict) -> bool:
 
 def discover_sessions() -> list[dict]:
     sessions: list[dict] = []
-    for f in sorted(IDNA_DIR.glob("*/*/session.json")):
+    for f in sorted(IDNA_DATA.glob("*/*/session.json")):
         try:
             data = json.loads(f.read_text())
             project = f.parent.parent.name
