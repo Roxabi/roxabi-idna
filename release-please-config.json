@@ -3,8 +3,8 @@
   "target-branch": "main",
   "packages": {
     ".": {
-      "component": "idna-runtime",
-      "package-name": "idna-runtime",
+      "component": "roxabi-idna",
+      "package-name": "roxabi-idna",
       "tag-separator": "/"
     }
   }
