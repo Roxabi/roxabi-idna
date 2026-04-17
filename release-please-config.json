@@ -2,6 +2,10 @@
   "release-type": "python",
   "target-branch": "main",
   "packages": {
-    ".": {}
+    ".": {
+      "component": "idna-runtime",
+      "package-name": "idna-runtime",
+      "tag-separator": "/"
+    }
   }
 }
