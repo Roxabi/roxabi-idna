@@ -12,8 +12,8 @@ Evolutionary selector for avatars/logos/brand concepts. Python 3.12 service that
 - `idna_encode_all.py` — encodes/embeds face images for similarity scoring
 - `idna_build_tree.py` — builds the evolutionary tree from picks
 - `idna_setup.py` — session bootstrap
-- `templates/` — HTML/JS frontend assets
-- `types/` — Python type stubs
+- `templates/` — artifact generation strategies (`BaseTemplate` subclasses for avatar/logo/etc)
+- `types/` — template vocabulary configs (axes, poles, `axis_priority` as TOML)
 
 Data split: `IDNA_DIR` = repo code, `IDNA_DATA` = session artifacts (outside repo).
 
