@@ -19,3 +19,5 @@ build/
 # dev-core (local config — stack.yml IS committed per Roxabi convention)
 .env
 .claude/dev-core.yml
+# CocoIndex Code (ccc)
+/.cocoindex_code/
