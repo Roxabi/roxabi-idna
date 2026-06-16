@@ -21,8 +21,8 @@ Recurring patterns and conventions used in this project.
 - **HTTP layer** — `idna/server.py` uses `BaseHTTPRequestHandler`. Handlers return `(status_code, body)` tuples; the server serialises to JSON. Unknown routes → 404 JSON.
 - **Session state** — Any mutation reads `session.json`, applies the change, writes it back atomically from the same request. Concurrent writes are not expected (single user, single browser).
 - **Daemon failures** — `idna/daemon.py` wraps the imageCLI socket. Socket errors are logged via `log.error(...)` and surface to the worker loop; the picker keeps serving stale state. Never swallow exceptions silently.
-- **Logging** — Single logger `idna` (`log = logging.getLogger("idna")`), `INFO` default via `logging.basicConfig`. Use `log.error(...)` for recoverable failures, let unexpected exceptions propagate so supervisord captures the traceback.
-- **Generation scripts** — `idna_{build_tree,encode_all,generate_round}.py` `sys.exit(1)` with a `print(..., file=sys.stderr)` on missing vocabulary/poles/session-id so supervisord logs the reason. No custom exception hierarchy — the scripts are linear.
+- **Logging** — Single logger `idna` (`log = logging.getLogger("idna")`), `INFO` default via `logging.basicConfig`. Use `log.error(...)` for recoverable failures, let unexpected exceptions propagate and surface on stderr.
+- **Generation scripts** — `idna_{build_tree,encode_all,generate_round}.py` `sys.exit(1)` with a `print(..., file=sys.stderr)` on missing vocabulary/poles/session-id. No custom exception hierarchy — the scripts are linear.
 
 ## Data Flow
 
@@ -43,7 +43,7 @@ idna_encode_all.py <session_dir>             (imageCLI venv, optional pre-pass)
 idna_generate_round.py <round_dir>            (imageCLI venv)
   → writes round_k/<id>.png
 
-idna_server.py (supervised)
+idna_server.py
   → serves picker UI, accepts pick/reroll/reset/nudge/finalize
   → BFS worker ensures the next round exists on demand
   → at finalize, calls high-res regen (FINAL_WIDTH × FINAL_HEIGHT)

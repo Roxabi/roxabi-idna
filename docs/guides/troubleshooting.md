@@ -6,12 +6,12 @@ Common issues and their solutions. Agents read this via `{standards.troubleshoot
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `Address already in use :8082` | Previous `idna_server.py` still running | `make idna stop`, check `supervisorctl status idna-*`; last resort `lsof -ti:8082 \| xargs kill` |
-| `ModuleNotFoundError: idna` | Running with wrong venv | Use `uv run python idna_server.py` from repo root (not system `python`) |
-| `Error: idna not initialized at ...` (make idna start) | `idna_server.py` missing at `$IDNA_DIR` | Check the Makefile-inferred `IDNA_DIR` matches a real checkout |
-| `make idna logs` shows `Connection refused` (daemon) | imageCLI daemon not running | Start imageCLI daemon on the same host; `ls -l ~/.local/share/imagecli/daemon.sock` should show a socket |
-| Browser hits the server but nodes never generate | Worker silently crashed | Tail `make idna errlogs`; common cause is missing `.pt` embeds → run `idna_encode_all.py <session_dir>` by hand |
-| Picker loads but images 404 | Round generated under wrong path | `session.json` and `$IDNA_DATA` paths must match; verify `IDNA_DATA` env in supervisord conf |
+| `Address already in use :8082` | Previous `idna_server.py` still running | `lsof -ti:8082 \| xargs kill` |
+| `ModuleNotFoundError: idna` | Running with wrong venv | Use `uv run idna_server.py` from repo root (not system `python`) |
+| `Error: idna not initialized at ...` | `idna_server.py` missing at `$IDNA_DIR` | Check `IDNA_DIR` matches a real checkout |
+| Server starts but imageCLI shows `Connection refused` | imageCLI daemon not running | Start imageCLI daemon on the same host; `ls -l ~/.local/share/imagecli/daemon.sock` should show a socket |
+| Browser hits the server but nodes never generate | Worker silently crashed | Read stderr from `uv run idna_server.py`; common cause is missing `.pt` embeds → run `idna_encode_all.py <session_dir>` by hand |
+| Picker loads but images 404 | Round generated under wrong path | `session.json` and `$IDNA_DATA` paths must match; verify `IDNA_DATA` env var |
 
 ## Pre-commit / CI failures
 
@@ -35,14 +35,13 @@ Common issues and their solutions. Agents read this via `{standards.troubleshoot
 | Nodes stuck at `status=pending` | `.pt` embed missing and encoder didn't run | `idna_encode_all.py <session_dir>`; worker does it per-round otherwise |
 | `_blend_pole_embeds: missing pole embed poles/N.pt` | Pole encodes weren't produced during setup | Re-run `idna_setup.py` with `--encode-poles` (or equivalent setup flag), or encode manually via daemon |
 
-## Supervisor / systemd
+## Service startup
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `make idna start` does nothing | Service pattern needs `<project>-<subject>` but args passed differently | Check `plugins/idna/supervisor/conf.d/idna.conf`; the program name is `idna-<project>-<subject>` |
-| Supervisor auto-starts on `roxabitower` (dev) | Shouldn't on dev | Confirm `lyra.service` is **not** enabled on dev: `systemctl --user status lyra.service` |
-| Logs don't rotate | supervisord default logs only rotate at restart | `supervisorctl restart idna-<project>-<subject>` when logs get large |
-| Prod box reboot loses picker state | `$IDNA_DATA` must be on the boot volume (it is by default at `~/.roxabi/idna`) | Check mount points if host was re-imaged |
+| `Address already in use :8082` | Previous `idna_server.py` still running | `lsof -ti:8082 \| xargs kill` |
+| Server exits silently | Missing dependency or bad env | Run `uv run idna_server.py` in foreground; read stderr |
+| Host reboot loses picker state | `$IDNA_DATA` must be on the boot volume (it is by default at `~/.roxabi/idna`) | Check mount points if host was re-imaged |
 
 ## Development environment
 
