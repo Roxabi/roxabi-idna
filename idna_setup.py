@@ -45,7 +45,11 @@ Return ONLY valid JSON, no markdown, no explanation."""
 
 
 def build_setup_prompt(user_intent: str, template: str | None, width: int = 4) -> str:
-    template_hint = f"Template: {template}" if template else "Pick from: color-palette, logo, ui-component, avatar, icon-set, motion-curve"
+    template_hint = (
+        f"Template: {template}"
+        if template
+        else "Pick from: color-palette, logo, ui-component, avatar, icon-set, motion-curve"
+    )
 
     return f"""User goal: {user_intent}
 
@@ -104,14 +108,25 @@ Return a session vocabulary JSON. Format depends on template:
 
 def call_claude(user_msg: str) -> dict:
     result = subprocess.run(
-        ["claude", "-p", user_msg,
-         "--system-prompt", SYSTEM,
-         "--output-format", "text",
-         "--max-turns", "1"],
-        capture_output=True, text=True, timeout=120,
+        [
+            "claude",
+            "-p",
+            user_msg,
+            "--system-prompt",
+            SYSTEM,
+            "--output-format",
+            "text",
+            "--max-turns",
+            "1",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=120,
     )
     if result.returncode != 0:
-        raise RuntimeError(f"claude CLI exited {result.returncode}: {result.stderr.strip()}")
+        raise RuntimeError(
+            f"claude CLI exited {result.returncode}: {result.stderr.strip()}"
+        )
     raw = result.stdout.strip()
     if raw.startswith("```"):
         raw = raw.split("```")[1]
@@ -121,14 +136,23 @@ def call_claude(user_msg: str) -> dict:
     return json.loads(raw)
 
 
-def setup_session(session_dir: Path, depth: int, width: int, intent: str | None, template: str | None, anchor: str | None) -> None:
+def setup_session(
+    session_dir: Path,
+    depth: int,
+    width: int,
+    intent: str | None,
+    template: str | None,
+    anchor: str | None,
+) -> None:
     session_dir.mkdir(parents=True, exist_ok=True)
     session_file = session_dir / "session.json"
 
     if session_file.exists():
         existing = json.loads(session_file.read_text())
         if existing.get("vocabulary"):
-            print(f"Session already has vocabulary ({existing.get('template')}). Use --reset to overwrite.")
+            print(
+                f"Session already has vocabulary ({existing.get('template')}). Use --reset to overwrite."
+            )
             sys.exit(0)
 
     if not intent:
@@ -140,7 +164,9 @@ def setup_session(session_dir: Path, depth: int, width: int, intent: str | None,
             sys.exit(1)
 
     if template and template in PHASE2_TEMPLATES:
-        print(f"Template '{template}' is Phase 2 (requires LLM per node). Not available yet.")
+        print(
+            f"Template '{template}' is Phase 2 (requires LLM per node). Not available yet."
+        )
         sys.exit(1)
 
     print(f"\nCalling Claude to set up vocabulary ({width} poles)...")
@@ -148,14 +174,19 @@ def setup_session(session_dir: Path, depth: int, width: int, intent: str | None,
 
     chosen_template = vocab_data.get("template", template or "avatar")
     if chosen_template in PHASE2_TEMPLATES:
-        print(f"Claude chose Phase 2 template '{chosen_template}'. Please clarify your goal.")
+        print(
+            f"Claude chose Phase 2 template '{chosen_template}'. Please clarify your goal."
+        )
         sys.exit(1)
 
     # Validate image templates have axes
     if chosen_template in IMAGE_TEMPLATES:
         axes = vocab_data.get("axes", [])
         if not axes:
-            print(f"ERROR: image template '{chosen_template}' requires 'axes'. LLM returned wrong format.", file=sys.stderr)
+            print(
+                f"ERROR: image template '{chosen_template}' requires 'axes'. LLM returned wrong format.",
+                file=sys.stderr,
+            )
             sys.exit(1)
         # Fill missing axis values in poles with 0.5
         axis_names = [a["name"] for a in axes]
@@ -188,7 +219,9 @@ def setup_session(session_dir: Path, depth: int, width: int, intent: str | None,
     print(f"  Template:  {chosen_template}")
     print(f"  Anchor:    {session['anchor']}")
     if axes:
-        print(f"  Axes:      {len(axes)} ({', '.join(a['name'] for a in axes[:5])}{'…' if len(axes) > 5 else ''})")
+        print(
+            f"  Axes:      {len(axes)} ({', '.join(a['name'] for a in axes[:5])}{'…' if len(axes) > 5 else ''})"
+        )
     print(f"  Poles:     {', '.join(p['name'] for p in poles)}")
     print(f"\nNext: python idna_build_tree.py {session_dir}")
 
@@ -204,7 +237,11 @@ def main():
     args = parser.parse_args()
     setup_session(
         Path(args.session_dir).expanduser().resolve(),
-        args.depth, args.width, args.intent, args.template, args.anchor,
+        args.depth,
+        args.width,
+        args.intent,
+        args.template,
+        args.anchor,
     )
 
 

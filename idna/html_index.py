@@ -6,28 +6,42 @@ from .html_index_css import INDEX_CSS
 from .html_index_js import INDEX_JS
 
 _STATUS_COLOR: dict[str, str] = {
-    "generating": "#e8a030", "encoding": "#a78bfa", "building": "#22d3ee",
-    "idle": "#34d399", "done": "#20c9ac", "error": "#f87171",
-    "ready": "#22d3ee", "finalizing": "#a78bfa", "locked": "#20c9ac",
+    "generating": "#e8a030",
+    "encoding": "#a78bfa",
+    "building": "#22d3ee",
+    "idle": "#34d399",
+    "done": "#20c9ac",
+    "error": "#f87171",
+    "ready": "#22d3ee",
+    "finalizing": "#a78bfa",
+    "locked": "#20c9ac",
 }
 
 
 def _index_html(sessions: list[dict], daemon_ok: bool = True) -> str:
-    daemon_banner = "" if daemon_ok else (
-        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;padding:10px 16px;'
-        'background:rgba(220,80,60,.12);border:1px solid rgba(220,80,60,.4);border-radius:8px;'
-        'font-size:.78rem;color:#e05040">'
-        '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#e05040" stroke-width="2" style="flex-shrink:0">'
-        '<circle cx="8" cy="8" r="7"/><line x1="8" y1="5" x2="8" y2="8"/><line x1="8" y1="11" x2="8.01" y2="11"/>'
-        '</svg>&nbsp;imageCLI daemon offline &mdash; run '
-        '<code style="font-family:monospace;background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px;margin:0 4px">'
-        'make gen start</code> to generate images</div>'
+    daemon_banner = (
+        ""
+        if daemon_ok
+        else (
+            '<div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;padding:10px 16px;'
+            "background:rgba(220,80,60,.12);border:1px solid rgba(220,80,60,.4);border-radius:8px;"
+            'font-size:.78rem;color:#e05040">'
+            '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#e05040" stroke-width="2" style="flex-shrink:0">'
+            '<circle cx="8" cy="8" r="7"/><line x1="8" y1="5" x2="8" y2="8"/><line x1="8" y1="11" x2="8.01" y2="11"/>'
+            "</svg>&nbsp;imageCLI daemon offline &mdash; run "
+            '<code style="font-family:monospace;background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px;margin:0 4px">'
+            "make gen start</code> to generate images</div>"
+        )
     )
     cards = ""
     for s in sessions:
         phase = s.get("phase", "picking")
         gen_status = s.get("gen_status", "unknown")
-        label = phase if phase in ("done", "finalizing") else (gen_status or s.get("status", "unknown"))
+        label = (
+            phase
+            if phase in ("done", "finalizing")
+            else (gen_status or s.get("status", "unknown"))
+        )
         color = _STATUS_COLOR.get(label, "#7d8799")
         display_img = s.get("display_img")
         thumb = f'<img src="{display_img}" alt="preview">' if display_img else ""
@@ -35,20 +49,21 @@ def _index_html(sessions: list[dict], daemon_ok: bool = True) -> str:
         ratio_css = ratio.replace(":", "/")
         tmpl = s.get("template", "")
         cards += f"""
-    <a class="card" href="{s['url']}">
+    <a class="card" href="{s["url"]}">
       <div class="card-thumb" style="aspect-ratio:{ratio_css}">{thumb}</div>
       <div class="card-body">
-        <div class="card-project">{s['project']}</div>
-        <div class="card-subject">{s['subject']}</div>
+        <div class="card-project">{s["project"]}</div>
+        <div class="card-subject">{s["subject"]}</div>
         <div class="card-meta">
           <span class="badge" style="border-color:{color};color:{color}">{label}</span>
-          <span class="dim">r{s['round']} \u00b7 {ratio}{' \u00b7 ' + tmpl if tmpl else ''}</span>
+          <span class="dim">r{s["round"]} \u00b7 {ratio}{" \u00b7 " + tmpl if tmpl else ""}</span>
         </div>
       </div>
     </a>"""
     empty = (
         '<div class="empty">No sessions yet. Hit <strong>+ New</strong> to start one.</div>'
-        if not sessions else ""
+        if not sessions
+        else ""
     )
     return f"""<!DOCTYPE html>
 <html lang="en" data-theme="dark">

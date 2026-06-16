@@ -14,7 +14,9 @@ class BaseTemplate(ABC):
         """Build params dict for a root pole node."""
 
     @abstractmethod
-    def mutate(self, parent_params: dict, mutation: str, vocabulary: dict, parent_id: str) -> dict:
+    def mutate(
+        self, parent_params: dict, mutation: str, vocabulary: dict, parent_id: str
+    ) -> dict:
         """Apply mutation to parent params. Pure math/string, no LLM."""
 
     @abstractmethod
@@ -25,7 +27,14 @@ class BaseTemplate(ABC):
     def artifact_path(self, node_id: str, round_num: int) -> str:
         """Relative path for the artifact file."""
 
-    def child_mutation_key(self, child_index: int, parent_params: dict, vocabulary: dict, round_num: int, width: int) -> str:
+    def child_mutation_key(
+        self,
+        child_index: int,
+        parent_params: dict,
+        vocabulary: dict,
+        round_num: int,
+        width: int,
+    ) -> str:
         """Return mutation key for child at given index. Default: amplify/blend/refine cycle."""
         return _MUTATION_CYCLE[child_index % 3]
 
@@ -33,7 +42,9 @@ class BaseTemplate(ABC):
         """Negative prompt for image generation. Override in subclasses."""
         return ""
 
-    def render_sync(self, node: dict, session_dir: Path, vocabulary: dict) -> Path | None:
+    def render_sync(
+        self, node: dict, session_dir: Path, vocabulary: dict
+    ) -> Path | None:
         """Synchronously render inline templates. Default: None (external rendering)."""
         return None
 
@@ -82,10 +93,10 @@ class AxisTemplate(BaseTemplate):
 
     def _step(self, parent_id: str) -> float:
         """Step size by parent round:
-          round 0 parent → 0.90  (flip to opposite extreme — poles already at 0.05/0.95)
-          round 1 parent → 0.40  (large — still exploring)
-          round 2 parent → 0.28
-          round 3 parent → 0.20  …decays at 0.70× per round
+        round 0 parent → 0.90  (flip to opposite extreme — poles already at 0.05/0.95)
+        round 1 parent → 0.40  (large — still exploring)
+        round 2 parent → 0.28
+        round 3 parent → 0.20  …decays at 0.70× per round
         """
         round_num = parent_id.split(":")[0].count("-")
         if round_num == 0:
@@ -104,7 +115,9 @@ class AxisTemplate(BaseTemplate):
         params["_tags"] = self._compute_tags(params, axes)
         return params
 
-    def mutate(self, parent_params: dict, mutation: str, vocabulary: dict, parent_id: str) -> dict:
+    def mutate(
+        self, parent_params: dict, mutation: str, vocabulary: dict, parent_id: str
+    ) -> dict:
         """Apply a mutation to parent params.
 
         Formats:
@@ -129,7 +142,8 @@ class AxisTemplate(BaseTemplate):
         elif mutation.startswith("axis:"):
             step = self._step(parent_id)
             import re as _re
-            for axis_name, direction in _re.findall(r'(\w+):([+-]1)', mutation[5:]):
+
+            for axis_name, direction in _re.findall(r"(\w+):([+-]1)", mutation[5:]):
                 delta = step * (1.0 if direction == "+1" else -1.0)
                 current = params.get(axis_name, 0.5)
                 new_val = current + delta
@@ -138,13 +152,23 @@ class AxisTemplate(BaseTemplate):
                     new_val = 0.70 if delta > 0 else 0.30
                 params[axis_name] = round(max(0.0, min(1.0, new_val)), 4)
                 arrow = "↑" if direction == "+1" else "↓"
-                params["pole_name"] = f"{parent_params.get('pole_name', '')}·{axis_name}{arrow}"
+                params["pole_name"] = (
+                    f"{parent_params.get('pole_name', '')}·{axis_name}{arrow}"
+                )
                 params["varied_axis"] = axis_name
 
         params["_tags"] = self._compute_tags(params, axes)
         return params
 
-    def child_mutation_key(self, child_index: int, parent_params: dict, vocabulary: dict, round_num: int, width: int, reroll: int = 0) -> str:
+    def child_mutation_key(
+        self,
+        child_index: int,
+        parent_params: dict,
+        vocabulary: dict,
+        round_num: int,
+        width: int,
+        reroll: int = 0,
+    ) -> str:
         """Assign each child a mutation key.
 
         Last slot (child_index == width-1): wildcard — jumps to random extreme.
@@ -209,9 +233,9 @@ class TomlAxisTemplate(AxisTemplate):
         self.artifact_type: str = meta.get("artifact_type", "image")
 
         dims = config.get("dimensions", {})
-        self.TREE_WIDTH: int  = dims.get("tree_width", 384)
+        self.TREE_WIDTH: int = dims.get("tree_width", 384)
         self.TREE_HEIGHT: int = dims.get("tree_height", 512)
-        self.FINAL_WIDTH: int  = dims.get("final_width", 768)
+        self.FINAL_WIDTH: int = dims.get("final_width", 768)
         self.FINAL_HEIGHT: int = dims.get("final_height", 1024)
 
         prompt_cfg = config.get("prompt", {})
@@ -220,9 +244,8 @@ class TomlAxisTemplate(AxisTemplate):
 
         # ── Build merged axes dict ─────────────────────────────────────────────
         # shared_axes list may live under [prompt] (per TOML spec) or at top level.
-        shared_refs: list[str] = (
-            prompt_cfg.get("shared_axes")
-            or config.get("shared_axes", [])
+        shared_refs: list[str] = prompt_cfg.get("shared_axes") or config.get(
+            "shared_axes", []
         )
         # Start with shared axes, then overlay type-local axes (local wins).
         merged: dict[str, dict] = {}

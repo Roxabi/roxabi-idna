@@ -16,7 +16,14 @@ from .nodes import (
     _node_children_ids,
     _node_round,
 )
-from .session import _key, _session_dir, _is_new_format, read_session, write_session, _workers
+from .session import (
+    _key,
+    _session_dir,
+    _is_new_format,
+    read_session,
+    write_session,
+    _workers,
+)
 
 
 def _get_artifact_type(session: dict) -> str:
@@ -25,6 +32,7 @@ def _get_artifact_type(session: dict) -> str:
     try:
         sys.path.insert(0, str(IDNA_DIR))
         from templates import get_template  # type: ignore[import-not-found]
+
         return get_template(template_name).artifact_type  # type: ignore[no-any-return]
     except Exception:
         return "image"
@@ -41,14 +49,18 @@ def _generation_worker(project: str, subject: str) -> None:
 
     # html/text nodes are already rendered by build_tree — nothing to do
     if artifact_type in ("html", "text"):
-        log.info("Generation worker: artifact_type=%s, no generation needed", artifact_type)
+        log.info(
+            "Generation worker: artifact_type=%s, no generation needed", artifact_type
+        )
         session["gen_status"] = "idle"
         write_session(project, subject, session)
         return
 
     # audio: TODO — voiceCLI integration not yet implemented
     if artifact_type == "audio":
-        log.warning("Generation worker: audio artifact_type — voiceCLI integration TODO")
+        log.warning(
+            "Generation worker: audio artifact_type — voiceCLI integration TODO"
+        )
         session["gen_status"] = "idle"
         write_session(project, subject, session)
         return
@@ -78,22 +90,34 @@ def _generation_worker(project: str, subject: str) -> None:
             children = _node_children_ids(parent, width)
             # On-demand node creation: if children don't exist yet, create them now.
             if not any(c in nodes for c in children):
-                log.info("Creating on-demand children for %s (round %d+1)", parent, _node_round(parent))
+                log.info(
+                    "Creating on-demand children for %s (round %d+1)",
+                    parent,
+                    _node_round(parent),
+                )
                 session = _create_child_nodes(sdir, parent, session)
                 write_session(project, subject, session)
                 nodes = session.get("nodes", {})
-            pending = [nid for nid in children if nodes.get(nid, {}).get("status") in actionable]
+            pending = [
+                nid
+                for nid in children
+                if nodes.get(nid, {}).get("status") in actionable
+            ]
 
         if not pending:
             session["gen_status"] = "idle"
             write_session(project, subject, session)
-            log.info("Generation worker idle: %s/%s (waiting for pick)", project, subject)
+            log.info(
+                "Generation worker idle: %s/%s (waiting for pick)", project, subject
+            )
             break
 
         batch_round = _node_round(pending[0])
         batch = pending
 
-        log.info("Generating batch: round %d, %d nodes (%s)", batch_round, len(batch), batch)
+        log.info(
+            "Generating batch: round %d, %d nodes (%s)", batch_round, len(batch), batch
+        )
 
         # Ensure job files exist for all batch nodes
         for nid in batch:
@@ -108,8 +132,7 @@ def _generation_worker(project: str, subject: str) -> None:
 
         # Encode any nodes that don't have embeddings yet
         needs_encode = [
-            nid for nid in batch
-            if not (round_dir / "embeds" / f"{nid}.pt").exists()
+            nid for nid in batch if not (round_dir / "embeds" / f"{nid}.pt").exists()
         ]
         if needs_encode:
             session["gen_status"] = "encoding"
@@ -160,7 +183,11 @@ def _generation_worker(project: str, subject: str) -> None:
         nodes = session["nodes"]
 
         if not result.get("ok"):
-            log.error("Daemon generation failed for round %d: %s", batch_round, result.get("error"))
+            log.error(
+                "Daemon generation failed for round %d: %s",
+                batch_round,
+                result.get("error"),
+            )
             for nid in batch:
                 if nid in nodes:
                     nodes[nid]["status"] = "error"
@@ -187,6 +214,8 @@ def _ensure_worker(project: str, subject: str) -> None:
     """Start generation worker if not already running."""
     k = _key(project, subject)
     if k not in _workers or not _workers[k].is_alive():
-        t = threading.Thread(target=_generation_worker, args=(project, subject), daemon=True)
+        t = threading.Thread(
+            target=_generation_worker, args=(project, subject), daemon=True
+        )
         _workers[k] = t
         t.start()

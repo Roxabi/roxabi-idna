@@ -96,7 +96,10 @@ def _daemon_blend(inputs: list[dict], out_path: str, timeout: int = 30) -> dict:
     sock.settimeout(timeout)
     try:
         sock.connect(str(DAEMON_SOCK))
-        payload = json.dumps({"action": "blend", "inputs": inputs, "out_path": out_path}) + "\n"
+        payload = (
+            json.dumps({"action": "blend", "inputs": inputs, "out_path": out_path})
+            + "\n"
+        )
         sock.sendall(payload.encode())
         buf = bytearray()
         while True:
@@ -138,7 +141,8 @@ def _daemon_ensure_running(timeout: int = 60) -> bool:
     try:
         subprocess.run(
             ["supervisorctl", "start", "imagecli_gen"],
-            capture_output=True, timeout=10,
+            capture_output=True,
+            timeout=10,
         )
     except Exception as exc:
         log.error("supervisorctl start imagecli_gen failed: %s", exc)

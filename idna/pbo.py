@@ -21,6 +21,7 @@ from scipy.special import ndtr as _Phi  # standard normal CDF
 
 # ── Kernel ────────────────────────────────────────────────────────────────────
 
+
 def _rbf_kernel(
     X1: np.ndarray,
     X2: np.ndarray,
@@ -28,12 +29,13 @@ def _rbf_kernel(
     sigma_f: float,
 ) -> np.ndarray:
     """Squared-exponential (RBF) kernel: k(x1,x2) = σ_f² exp(-||x1-x2||²/2l²)."""
-    diff = X1[:, None, :] - X2[None, :, :]          # (n1, n2, d)
-    sq_dist = np.einsum("ijk,ijk->ij", diff, diff)   # (n1, n2)
-    return (sigma_f ** 2) * np.exp(-0.5 * sq_dist / (length_scale ** 2))
+    diff = X1[:, None, :] - X2[None, :, :]  # (n1, n2, d)
+    sq_dist = np.einsum("ijk,ijk->ij", diff, diff)  # (n1, n2)
+    return (sigma_f**2) * np.exp(-0.5 * sq_dist / (length_scale**2))
 
 
 # ── GP Preference Model ───────────────────────────────────────────────────────
+
 
 class PreferenceGP:
     """
@@ -100,7 +102,10 @@ class PreferenceGP:
             return g
 
         result = minimize(
-            neg_log_post, np.zeros(N), jac=grad, method="L-BFGS-B",
+            neg_log_post,
+            np.zeros(N),
+            jac=grad,
+            method="L-BFGS-B",
             options={"maxiter": 300, "ftol": 1e-8},
         )
         self._f_map = result.x
@@ -110,8 +115,8 @@ class PreferenceGP:
         if self._X is None or self._f_map is None or self._K_inv is None:
             return np.zeros(len(X_new)), np.ones(len(X_new))
 
-        K_s = _rbf_kernel(X_new, self._X, self.length_scale, self.sigma_f)   # (N_new, N)
-        K_ss_diag = self.sigma_f ** 2 * np.ones(len(X_new))                   # prior var
+        K_s = _rbf_kernel(X_new, self._X, self.length_scale, self.sigma_f)  # (N_new, N)
+        K_ss_diag = self.sigma_f**2 * np.ones(len(X_new))  # prior var
 
         mu = K_s @ (self._K_inv @ self._f_map)
         var_diag = K_ss_diag - np.einsum("ij,jk,ik->i", K_s, self._K_inv, K_s)
@@ -119,6 +124,7 @@ class PreferenceGP:
 
 
 # ── Candidate pool & selection ────────────────────────────────────────────────
+
 
 def _build_pool(
     best: np.ndarray,
@@ -135,8 +141,8 @@ def _build_pool(
     pool = np.empty((size, d))
     # Distribution: local 30% / axis-extremes 35% / random 35%
     # (stays exploration-heavy until many comparisons)
-    n_local  = size * 3 // 10
-    n_axis   = size * 35 // 100
+    n_local = size * 3 // 10
+    n_axis = size * 35 // 100
     n_random = size - n_local - n_axis
 
     # Sigma widens in early rounds — shrinks slowly as data grows
@@ -152,7 +158,7 @@ def _build_pool(
         pool[n_local + i] = v
 
     # Pure random exploration
-    pool[n_local + n_axis:] = rng.uniform(0.0, 1.0, (n_random, d))
+    pool[n_local + n_axis :] = rng.uniform(0.0, 1.0, (n_random, d))
     return pool
 
 
@@ -184,6 +190,7 @@ def _diverse_top_n(
 
 
 # ── Public API ────────────────────────────────────────────────────────────────
+
 
 def suggest_candidates(
     session: dict,

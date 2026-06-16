@@ -32,22 +32,30 @@ def handle_pick(handler: "IDNAHandler", project: str, subject: str, body: dict) 
         return
     node = nodes[node_id]
     if node.get("status") != "ready":
-        handler._json(409, {"error": f"node {node_id!r} not ready (status: {node.get('status')})"})
+        handler._json(
+            409, {"error": f"node {node_id!r} not ready (status: {node.get('status')})"}
+        )
         return
     path_list = session.get("path", [])
     expected_round = len(path_list)
     if node["round"] != expected_round:
-        handler._json(409, {"error": f"node round {node['round']} != expected {expected_round}"})
+        handler._json(
+            409, {"error": f"node round {node['round']} != expected {expected_round}"}
+        )
         return
     path_list.append(node_id)
     # Record pairwise comparison for PBO
-    all_round_nodes = [nid for nid, n in nodes.items() if n.get("round") == node["round"]]
+    all_round_nodes = [
+        nid for nid, n in nodes.items() if n.get("round") == node["round"]
+    ]
     losers = [nid for nid in all_round_nodes if nid != node_id]
-    session.setdefault("comparisons", []).append({
-        "round": node["round"],
-        "winner": node_id,
-        "losers": losers,
-    })
+    session.setdefault("comparisons", []).append(
+        {
+            "round": node["round"],
+            "winner": node_id,
+            "losers": losers,
+        }
+    )
     session["path"] = path_list
     width = session.get("width", 3)
     children = _node_children_ids(node_id, width)
@@ -115,7 +123,9 @@ def handle_reroll(handler: "IDNAHandler", project: str, subject: str) -> None:
     session["nodes"] = nodes
     session = _create_child_nodes(sdir, parent_id, session, seed_suffix=f":r{reroll_n}")
     new_children = _node_children_ids(parent_id, width)
-    session["queue"] = new_children + [nid for nid in session.get("queue", []) if nid not in new_children]
+    session["queue"] = new_children + [
+        nid for nid in session.get("queue", []) if nid not in new_children
+    ]
     write_session(project, subject, session)
     _ensure_worker(project, subject)
     handler._json(200, {"ok": True, "reroll": reroll_n, "parent": parent_id})
@@ -135,7 +145,9 @@ def handle_finalize(handler: "IDNAHandler", project: str, subject: str) -> None:
     session["phase"] = "finalizing"
     write_session(project, subject, session)
     threading.Thread(
-        target=_regen_winner_hires, args=(project, subject, winner_id), daemon=True,
+        target=_regen_winner_hires,
+        args=(project, subject, winner_id),
+        daemon=True,
     ).start()
     handler._json(200, {"ok": True, "winner": winner_id, "regenerating": True})
 
@@ -156,7 +168,9 @@ def handle_delete(handler: "IDNAHandler", project: str, subject: str) -> None:
     handler._json(200, {"ok": True})
 
 
-def handle_nudge(handler: "IDNAHandler", project: str, subject: str, body: dict) -> None:
+def handle_nudge(
+    handler: "IDNAHandler", project: str, subject: str, body: dict
+) -> None:
     sdir = _session_dir(project, subject)
     session = read_session(project, subject)
     if not _is_new_format(session):
@@ -164,7 +178,9 @@ def handle_nudge(handler: "IDNAHandler", project: str, subject: str, body: dict)
         return
     vocabulary = session.get("vocabulary", {})
     if not vocabulary.get("axes"):
-        handler._json(400, {"error": "session does not use axis navigation (no axes defined)"})
+        handler._json(
+            400, {"error": "session does not use axis navigation (no axes defined)"}
+        )
         return
     text = body.get("text", "").strip()
     if not text:
@@ -187,6 +203,7 @@ def handle_nudge(handler: "IDNAHandler", project: str, subject: str, body: dict)
     sys.path.insert(0, str(IDNA_DIR))
     try:
         from templates import get_template  # type: ignore[import-not-found]
+
         tmpl = get_template(session.get("template", "avatar"))
     except Exception as exc:
         handler._json(500, {"error": f"template load failed: {exc}"})
@@ -195,7 +212,9 @@ def handle_nudge(handler: "IDNAHandler", project: str, subject: str, body: dict)
     axes = vocabulary.get("axes", [])
     for axis_name, delta in deltas.items():
         if isinstance(delta, (int, float)) and axis_name in nudged_params:
-            nudged_params[axis_name] = round(max(0.0, min(1.0, nudged_params[axis_name] + delta)), 4)
+            nudged_params[axis_name] = round(
+                max(0.0, min(1.0, nudged_params[axis_name] + delta)), 4
+            )
     if hasattr(tmpl, "_compute_tags"):
         nudged_params["_tags"] = tmpl._compute_tags(nudged_params, axes)
     width = session.get("width", 3)
@@ -211,8 +230,12 @@ def handle_nudge(handler: "IDNAHandler", project: str, subject: str, body: dict)
                 fpath.unlink(missing_ok=True)
             del nodes[child_id]
     session["nodes"] = nodes
-    session = _create_child_nodes(sdir, parent_id, session, override_params=nudged_params)
-    session.setdefault("nudge_log", []).append({"parent_id": parent_id, "text": text, "deltas": deltas})
+    session = _create_child_nodes(
+        sdir, parent_id, session, override_params=nudged_params
+    )
+    session.setdefault("nudge_log", []).append(
+        {"parent_id": parent_id, "text": text, "deltas": deltas}
+    )
     write_session(project, subject, session)
     _ensure_worker(project, subject)
     handler._json(200, {"ok": True, "deltas": deltas, "children_regenerating": True})

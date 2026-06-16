@@ -6,7 +6,15 @@ import json
 import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-from .api import handle_back, handle_delete, handle_finalize, handle_nudge, handle_pick, handle_reset, handle_reroll
+from .api import (
+    handle_back,
+    handle_delete,
+    handle_finalize,
+    handle_nudge,
+    handle_pick,
+    handle_reset,
+    handle_reroll,
+)
 from .api_new import handle_new
 from .config import IDNA_DATA, IDNA_DIR, MIME, log
 from .daemon import _daemon_ping
@@ -71,23 +79,37 @@ class IDNAHandler(BaseHTTPRequestHandler):
         if rest == "/api/status":
             session = read_session(_project, _subject)
             if not _is_new_format(session):
-                self._json(200, {"error": "legacy format", "gen_status": "legacy",
-                                  "phase": "legacy", "path": [], "nodes": {}, "queue_length": 0})
+                self._json(
+                    200,
+                    {
+                        "error": "legacy format",
+                        "gen_status": "legacy",
+                        "phase": "legacy",
+                        "path": [],
+                        "nodes": {},
+                        "queue_length": 0,
+                    },
+                )
                 return
             artifact_type = _get_artifact_type(session)
-            self._json(200, {
-                "id": session.get("id"),
-                "template": session.get("template", "avatar"),
-                "artifact_type": artifact_type,
-                "phase": session.get("phase", "picking"),
-                "gen_status": session.get("gen_status", "idle"),
-                "path": session.get("path", []),
-                "winner": session.get("winner"),
-                "queue_length": len(session.get("queue", [])),
-                "nodes": session.get("nodes", {}),
-                "ratio": session.get("ratio", "3:4"),
-                "daemon_available": _daemon_ping() if artifact_type == "image" else None,
-            })
+            self._json(
+                200,
+                {
+                    "id": session.get("id"),
+                    "template": session.get("template", "avatar"),
+                    "artifact_type": artifact_type,
+                    "phase": session.get("phase", "picking"),
+                    "gen_status": session.get("gen_status", "idle"),
+                    "path": session.get("path", []),
+                    "winner": session.get("winner"),
+                    "queue_length": len(session.get("queue", [])),
+                    "nodes": session.get("nodes", {}),
+                    "ratio": session.get("ratio", "3:4"),
+                    "daemon_available": _daemon_ping()
+                    if artifact_type == "image"
+                    else None,
+                },
+            )
             return
 
         if rest == "/api/tree":
@@ -124,13 +146,13 @@ class IDNAHandler(BaseHTTPRequestHandler):
         body = json.loads(self.rfile.read(length)) if length else {}
 
         routes: dict[str, object] = {
-            "/api/pick":     lambda: handle_pick(self, _project, _subject, body),
-            "/api/back":     lambda: handle_back(self, _project, _subject),
-            "/api/reroll":   lambda: handle_reroll(self, _project, _subject),
+            "/api/pick": lambda: handle_pick(self, _project, _subject, body),
+            "/api/back": lambda: handle_back(self, _project, _subject),
+            "/api/reroll": lambda: handle_reroll(self, _project, _subject),
             "/api/finalize": lambda: handle_finalize(self, _project, _subject),
-            "/api/nudge":    lambda: handle_nudge(self, _project, _subject, body),
-            "/api/reset":    lambda: handle_reset(self, _project, _subject),
-            "/api/delete":   lambda: handle_delete(self, _project, _subject),
+            "/api/nudge": lambda: handle_nudge(self, _project, _subject, body),
+            "/api/reset": lambda: handle_reset(self, _project, _subject),
+            "/api/delete": lambda: handle_delete(self, _project, _subject),
         }
         handler_fn = routes.get(rest)
         if handler_fn:
@@ -155,10 +177,17 @@ def main() -> None:
             _ensure_worker(project, subject)
             continue
         try:
-            sess = json.loads((_session_dir(project, subject) / "session.json").read_text())
+            sess = json.loads(
+                (_session_dir(project, subject) / "session.json").read_text()
+            )
             path = sess.get("path", [])
             nodes = sess.get("nodes", {})
-            if path and _is_new_format(sess) and sess.get("phase") == "picking" and not sess.get("winner"):
+            if (
+                path
+                and _is_new_format(sess)
+                and sess.get("phase") == "picking"
+                and not sess.get("winner")
+            ):
                 children = _node_children_ids(path[-1], sess.get("width", 3))
                 if not all(nodes.get(c, {}).get("status") == "ready" for c in children):
                     log.info("  Resuming generation worker for %s/%s", project, subject)
