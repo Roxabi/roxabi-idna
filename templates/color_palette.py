@@ -8,12 +8,18 @@ def hsl_to_hex(h, s, l):
     c = (1 - abs(2 * l - 1)) * s
     x = c * (1 - abs((h / 60) % 2 - 1))
     m = l - c / 2
-    if h < 60:    r, g, b = c, x, 0
-    elif h < 120: r, g, b = x, c, 0
-    elif h < 180: r, g, b = 0, c, x
-    elif h < 240: r, g, b = 0, x, c
-    elif h < 300: r, g, b = x, 0, c
-    else:         r, g, b = c, 0, x
+    if h < 60:
+        r, g, b = c, x, 0
+    elif h < 120:
+        r, g, b = x, c, 0
+    elif h < 180:
+        r, g, b = 0, c, x
+    elif h < 240:
+        r, g, b = 0, x, c
+    elif h < 300:
+        r, g, b = x, 0, c
+    else:
+        r, g, b = c, 0, x
     r, g, b = int((r + m) * 255), int((g + m) * 255), int((b + m) * 255)
     return f"#{r:02x}{g:02x}{b:02x}"
 
@@ -28,13 +34,17 @@ class ColorPaletteTemplate(BaseTemplate):
             "primary_hue": float(pole.get("primary_hue", 220)),
             "saturation": float(pole.get("saturation", 0.6)),
             "lightness": float(pole.get("lightness", 0.5)),
-            "accent_hue": float(pole.get("accent_hue", pole.get("primary_hue", 220) + 30)),
+            "accent_hue": float(
+                pole.get("accent_hue", pole.get("primary_hue", 220) + 30)
+            ),
         }
 
     def _clamp(self, v, lo, hi):
         return max(lo, min(hi, v))
 
-    def mutate(self, parent_params: dict, mutation: str, vocabulary: dict, parent_id: str) -> dict:
+    def mutate(
+        self, parent_params: dict, mutation: str, vocabulary: dict, parent_id: str
+    ) -> dict:
         p = dict(parent_params)
         vocab = vocabulary.get("mutation_vocab", {})
 
@@ -47,14 +57,20 @@ class ColorPaletteTemplate(BaseTemplate):
 
         elif mutation == "blend":
             weight = vocab.get("blend", {}).get("weight", 0.5)
-            p["primary_hue"] = (p["primary_hue"] + 30 * (1 if "cool" in p["pole_name"] else -1)) % 360
-            p["saturation"] = self._clamp(p["saturation"] * (1 - weight) + 0.5 * weight, 0, 1)
+            p["primary_hue"] = (
+                p["primary_hue"] + 30 * (1 if "cool" in p["pole_name"] else -1)
+            ) % 360
+            p["saturation"] = self._clamp(
+                p["saturation"] * (1 - weight) + 0.5 * weight, 0, 1
+            )
             p["pole_name"] = p["pole_name"] + "-blended"
 
         elif mutation == "refine":
             delta_s = vocab.get("refine", {}).get("saturation", -0.08)
             p["saturation"] = self._clamp(p["saturation"] + delta_s, 0, 1)
-            p["lightness"] = self._clamp(p["lightness"] + (0.5 - p["lightness"]) * 0.1, 0.1, 0.9)
+            p["lightness"] = self._clamp(
+                p["lightness"] + (0.5 - p["lightness"]) * 0.1, 0.1, 0.9
+            )
             p["pole_name"] = p["pole_name"] + "-refined"
 
         return p
@@ -100,7 +116,7 @@ class ColorPaletteTemplate(BaseTemplate):
 </style>
 </head>
 <body>
-<h2>{params['pole_name']} · {anchor}</h2>
+<h2>{params["pole_name"]} · {anchor}</h2>
 <div class="palette">{swatches_html}</div>
 <p>Accent <span class="accent" style="background:{accent}"></span> {accent}</p>
 </body>

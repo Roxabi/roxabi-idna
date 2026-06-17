@@ -67,31 +67,35 @@ def discover_sessions() -> list[dict]:
                     last = nodes.get(path[-1], {})
                     if last.get("status") == "ready" and last.get("artifact"):
                         display_img = f"/{project}/{subject}/{last['artifact']}"
-                sessions.append({
-                    "project": project,
-                    "subject": subject,
-                    "url": f"/{project}/{subject}/",
-                    "gen_status": data.get("gen_status", "idle"),
-                    "phase": data.get("phase", "picking"),
-                    "round": len(path),
-                    "display_img": display_img,
-                    "ratio": data.get("ratio", "3:4"),
-                    "template": data.get("template", ""),
-                    "format": "new",
-                })
+                sessions.append(
+                    {
+                        "project": project,
+                        "subject": subject,
+                        "url": f"/{project}/{subject}/",
+                        "gen_status": data.get("gen_status", "idle"),
+                        "phase": data.get("phase", "picking"),
+                        "round": len(path),
+                        "display_img": display_img,
+                        "ratio": data.get("ratio", "3:4"),
+                        "template": data.get("template", ""),
+                        "format": "new",
+                    }
+                )
             else:
-                sessions.append({
-                    "project": project,
-                    "subject": subject,
-                    "url": f"/{project}/{subject}/",
-                    "gen_status": data.get("status", "unknown"),
-                    "phase": data.get("phase", "explore"),
-                    "round": data.get("round", 0),
-                    "display_img": None,
-                    "ratio": "3:4",
-                    "template": "",
-                    "format": "legacy",
-                })
+                sessions.append(
+                    {
+                        "project": project,
+                        "subject": subject,
+                        "url": f"/{project}/{subject}/",
+                        "gen_status": data.get("status", "unknown"),
+                        "phase": data.get("phase", "explore"),
+                        "round": data.get("round", 0),
+                        "display_img": None,
+                        "ratio": "3:4",
+                        "template": "",
+                        "format": "legacy",
+                    }
+                )
         except Exception:
             pass
     return sessions

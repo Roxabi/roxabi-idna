@@ -26,7 +26,7 @@ _CHILD_SUFFIXES = ["va", "vb", "vc", "vd", "ve", "vf", "vg", "vh", "vi"]
 
 
 def node_count(depth: int, width: int) -> int:
-    return sum(width * (width ** r) for r in range(depth + 1))
+    return sum(width * (width**r) for r in range(depth + 1))
 
 
 def round_nodes(round_num: int, width: int) -> list[str]:
@@ -57,13 +57,17 @@ def node_label(node_id: str) -> str:
 
 # ── Tree builder ──────────────────────────────────────────────────────────────
 
+
 def build_tree(session_dir: Path, depth: int) -> None:
     session_file = session_dir / "session.json"
     session = json.loads(session_file.read_text())
 
     vocabulary = session.get("vocabulary")
     if not vocabulary:
-        print("ERROR: session.json missing 'vocabulary'. Run idna_setup.py first.", file=sys.stderr)
+        print(
+            "ERROR: session.json missing 'vocabulary'. Run idna_setup.py first.",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     width = session.get("width", 3)
@@ -72,15 +76,20 @@ def build_tree(session_dir: Path, depth: int) -> None:
 
     sys.path.insert(0, str(Path(__file__).parent))
     from templates import get_template
+
     tmpl = get_template(template_name)
 
     poles = vocabulary.get("poles", [])
     if len(poles) < width:
-        print(f"ERROR: vocabulary needs {width} poles, got {len(poles)}", file=sys.stderr)
+        print(
+            f"ERROR: vocabulary needs {width} poles, got {len(poles)}", file=sys.stderr
+        )
         sys.exit(1)
 
     total = node_count(depth, width)
-    print(f"IDNA tree builder — template={template_name}, depth={depth}, width={width}, total={total} nodes (0 LLM calls)")
+    print(
+        f"IDNA tree builder — template={template_name}, depth={depth}, width={width}, total={total} nodes (0 LLM calls)"
+    )
     print()
 
     nodes = session.get("nodes", {})
@@ -114,15 +123,23 @@ def build_tree(session_dir: Path, depth: int) -> None:
             if parent_id is None:
                 continue  # round >= 1 nodes always have a parent; skip defensively
             suffix = node_id.rsplit("-", 1)[1]
-            child_index = _CHILD_SUFFIXES.index(suffix) if suffix in _CHILD_SUFFIXES else 0
+            child_index = (
+                _CHILD_SUFFIXES.index(suffix) if suffix in _CHILD_SUFFIXES else 0
+            )
             parent_params = nodes[parent_id]["params"]
             parent_round = round_num - 1  # parent is one round up
 
             # Use template's child_mutation_key (axis-aware for image templates)
-            mutation = tmpl.child_mutation_key(child_index, parent_params, vocabulary, parent_round, width)
+            mutation = tmpl.child_mutation_key(
+                child_index, parent_params, vocabulary, parent_round, width
+            )
 
             # Salt only for legacy (non-axis) templates to vary hash-based selection
-            salt = "" if mutation.startswith("axis:") else (f":{child_index // 3}" if child_index >= 3 else "")
+            salt = (
+                ""
+                if mutation.startswith("axis:")
+                else (f":{child_index // 3}" if child_index >= 3 else "")
+            )
             params = tmpl.mutate(parent_params, mutation, vocabulary, parent_id + salt)
             prompt = tmpl.build_prompt(params, anchor)
             nodes[node_id] = {
@@ -191,7 +208,9 @@ def build_tree(session_dir: Path, depth: int) -> None:
     session["depth"] = depth
     session["phase"] = "picking"
     session["path"] = session.get("path", [])
-    session["gen_status"] = "ready" if tmpl.artifact_type in ("html", "text") else "generating"
+    session["gen_status"] = (
+        "ready" if tmpl.artifact_type in ("html", "text") else "generating"
+    )
     session["winner"] = session.get("winner")
     session.pop("rounds", None)
     session_file.write_text(json.dumps(session, indent=2))
@@ -202,7 +221,9 @@ def build_tree(session_dir: Path, depth: int) -> None:
     if tmpl.artifact_type == "image":
         print("\nNext steps:")
         print("  1. make idna start  (server encodes+generates lazily per pick)")
-        print(f"  2. open http://localhost:8082/{session_dir.parent.name}/{session_dir.name}/")
+        print(
+            f"  2. open http://localhost:8082/{session_dir.parent.name}/{session_dir.name}/"
+        )
 
 
 def main():

@@ -24,10 +24,12 @@ _PY_TEMPLATES: dict[str, type] = {
     "motion-curve": MotionCurveTemplate,
 }
 
+
 # TOML types directory: IDNA_DIR/types/*.toml (lives alongside the code, in the repo).
 # Resolved lazily so IDNA_DIR is available at call time.
 def _types_dir() -> Path:
     from idna.config import IDNA_DIR
+
     return IDNA_DIR / "types"
 
 
@@ -48,7 +50,11 @@ def get_template(name: str):
         try:
             return TomlAxisTemplate.from_file(toml_path)
         except Exception as exc:
-            log.warning("Failed to load TOML template %s: %s — falling back to Python", name, exc)
+            log.warning(
+                "Failed to load TOML template %s: %s — falling back to Python",
+                name,
+                exc,
+            )
 
     cls = _PY_TEMPLATES.get(name)
     if cls:
@@ -67,9 +73,12 @@ def get_template(name: str):
             except Exception:
                 pass
 
-    available = list(_PY_TEMPLATES) + [
-        p.stem for p in _types_dir().glob("*.toml") if not p.stem.startswith("_")
-    ] if _types_dir().exists() else list(_PY_TEMPLATES)
+    available = (
+        list(_PY_TEMPLATES)
+        + [p.stem for p in _types_dir().glob("*.toml") if not p.stem.startswith("_")]
+        if _types_dir().exists()
+        else list(_PY_TEMPLATES)
+    )
     raise ValueError(f"Unknown template: {name!r}. Available: {sorted(set(available))}")
 
 

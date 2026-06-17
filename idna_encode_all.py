@@ -37,7 +37,10 @@ def encode_all(session_dir: Path) -> None:
 
     session = json.loads(session_file.read_text())
     if "nodes" not in session:
-        print("ERROR: session uses legacy format — run idna_build_tree.py first", file=sys.stderr)
+        print(
+            "ERROR: session uses legacy format — run idna_build_tree.py first",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     nodes: dict = session["nodes"]
@@ -50,12 +53,14 @@ def encode_all(session_dir: Path) -> None:
         embed_file = session_dir / f"round_{round_num}" / "embeds" / f"{node['id']}.pt"
         if job_file.exists() and not embed_file.exists():
             job = json.loads(job_file.read_text())
-            pending.append({
-                "id": node["id"],
-                "round": round_num,
-                "prompt": job.get("prompt", node.get("prompt", "")),
-                "embed_path": embed_file,
-            })
+            pending.append(
+                {
+                    "id": node["id"],
+                    "round": round_num,
+                    "prompt": job.get("prompt", node.get("prompt", "")),
+                    "embed_path": embed_file,
+                }
+            )
 
     if not pending:
         print("All nodes already encoded — nothing to do.")
@@ -70,7 +75,10 @@ def encode_all(session_dir: Path) -> None:
         from diffusers import Flux2KleinPipeline
     except ImportError as e:
         print(f"ERROR: missing dependency ({e})", file=sys.stderr)
-        print("Run with: uv run --project ~/projects/imageCLI python idna_encode_all.py <session_dir>", file=sys.stderr)
+        print(
+            "Run with: uv run --project ~/projects/imageCLI python idna_encode_all.py <session_dir>",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     MODEL = "black-forest-labs/FLUX.2-klein-4B"
@@ -109,7 +117,9 @@ def encode_all(session_dir: Path) -> None:
         )
         encoded_ids.append(item["id"])
         elapsed = time.time() - t0
-        print(f"  [{i+1}/{len(pending)}] {item['id']}  {elapsed:.0f}s elapsed  VRAM: {vram()}")
+        print(
+            f"  [{i + 1}/{len(pending)}] {item['id']}  {elapsed:.0f}s elapsed  VRAM: {vram()}"
+        )
 
     del pipe
     gc.collect()
@@ -138,7 +148,9 @@ def encode_all(session_dir: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="IDNA bulk text encoder")
-    parser.add_argument("session_dir", help="Path to session directory (contains session.json)")
+    parser.add_argument(
+        "session_dir", help="Path to session directory (contains session.json)"
+    )
     args = parser.parse_args()
 
     session_dir = Path(args.session_dir).resolve()

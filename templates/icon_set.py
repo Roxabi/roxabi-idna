@@ -19,7 +19,9 @@ class IconSetTemplate(BaseTemplate):
     def _clamp(self, v, lo, hi):
         return max(lo, min(hi, v))
 
-    def mutate(self, parent_params: dict, mutation: str, vocabulary: dict, parent_id: str) -> dict:
+    def mutate(
+        self, parent_params: dict, mutation: str, vocabulary: dict, parent_id: str
+    ) -> dict:
         p = dict(parent_params)
         fills = ["none", "solid", "duotone"]
         fi = fills.index(p.get("fill", "none"))
@@ -52,7 +54,11 @@ class IconSetTemplate(BaseTemplate):
 
         def icon(path_d, label):
             opacity = "0.2" if fill == "duotone" else "1"
-            fill_el = f'<path d="{path_d}" fill="currentColor" opacity="{opacity}"/>' if fill != "none" else ""
+            fill_el = (
+                f'<path d="{path_d}" fill="currentColor" opacity="{opacity}"/>'
+                if fill != "none"
+                else ""
+            )
             return f'''<div class="icon-wrap">
               <svg viewBox="0 0 24 24" width="{size}" height="{size}" fill="none" stroke="currentColor" stroke-width="{sw}" stroke-linecap="round" stroke-linejoin="round">
                 {fill_el}
@@ -61,14 +67,27 @@ class IconSetTemplate(BaseTemplate):
               <span>{label}</span>
             </div>'''
 
-        icons_html = "\n".join([
-            icon("M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z", "Home"),
-            icon("M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z", "User"),
-            icon("M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z", "Chat"),
-            icon("M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z", "Edit"),
-            icon("M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0", "Bell"),
-            icon("M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z", "Shield"),
-        ])
+        icons_html = "\n".join(
+            [
+                icon("M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z", "Home"),
+                icon(
+                    "M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z",
+                    "User",
+                ),
+                icon(
+                    "M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z", "Chat"
+                ),
+                icon(
+                    "M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z",
+                    "Edit",
+                ),
+                icon(
+                    "M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0",
+                    "Bell",
+                ),
+                icon("M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z", "Shield"),
+            ]
+        )
 
         html = f"""<!DOCTYPE html>
 <html>
@@ -82,7 +101,7 @@ class IconSetTemplate(BaseTemplate):
 </style>
 </head>
 <body>
-<h2>{p['pole_name']} · sw:{sw} cr:{cr} fill:{fill}</h2>
+<h2>{p["pole_name"]} · sw:{sw} cr:{cr} fill:{fill}</h2>
 <div class="grid">{icons_html}</div>
 </body>
 </html>"""

@@ -62,10 +62,11 @@ def _blend_pole_embeds(sdir: Path, node_id: str, session: dict) -> bool:
     # doesn't collapse all weights onto the parent pole (which shares 17/19 axes).
     # For wildcard: use all axes (no specific direction).
     import re as _re
+
     mutation = node.get("mutation", "")
     varied: list[str] = []
     if mutation.startswith("axis:"):
-        varied = _re.findall(r'(\w+):[+-]1', mutation[5:])
+        varied = _re.findall(r"(\w+):[+-]1", mutation[5:])
         active_indices = [i for i, a in enumerate(axis_names) if a in varied]
     else:
         active_indices = list(range(len(axis_names)))
@@ -81,17 +82,26 @@ def _blend_pole_embeds(sdir: Path, node_id: str, session: dict) -> bool:
     # of how many axes are used (2 varied axes vs 19 all axes).
     temperature = 4.0
     dists = [
-        math.sqrt(sum((node_vec[k] - float(p.get(axis_names[active_indices[k]], 0.5))) ** 2
-                      for k in range(n_active))) / math.sqrt(n_active)
+        math.sqrt(
+            sum(
+                (node_vec[k] - float(p.get(axis_names[active_indices[k]], 0.5))) ** 2
+                for k in range(n_active)
+            )
+        )
+        / math.sqrt(n_active)
         for p in poles
     ]
     raw = [math.exp(-d * temperature) for d in dists]
     total = sum(raw)
     weights = [w / total for w in raw]
 
-    log.info("_blend_pole_embeds %s: varied=%s top_pole=%d (%.2f%%)",
-             node_id, varied if mutation.startswith("axis:") else "all",
-             weights.index(max(weights)), max(weights) * 100)
+    log.info(
+        "_blend_pole_embeds %s: varied=%s top_pole=%d (%.2f%%)",
+        node_id,
+        varied if mutation.startswith("axis:") else "all",
+        weights.index(max(weights)),
+        max(weights) * 100,
+    )
 
     round_num = node["round"]
     embed_path = sdir / f"round_{round_num}" / "embeds" / f"{node_id}.pt"
@@ -103,7 +113,11 @@ def _blend_pole_embeds(sdir: Path, node_id: str, session: dict) -> bool:
     ]
     result = _daemon_blend(inputs, str(embed_path))
     if not result.get("ok"):
-        log.error("_blend_pole_embeds: daemon blend failed for %s: %s", node_id, result.get("error"))
+        log.error(
+            "_blend_pole_embeds: daemon blend failed for %s: %s",
+            node_id,
+            result.get("error"),
+        )
         return False
     return True
 
@@ -123,7 +137,8 @@ def _nudge_call(params: dict, vocabulary: dict, text: str) -> dict | None:
         return None
     axis_descriptions = "\n".join(
         f'- {a["name"]}: {params.get(a["name"], 0.5):.2f}  (0="{a["low"]}" \u2192 1="{a["high"]}")'
-        for a in axes if a["name"] in params
+        for a in axes
+        if a["name"] in params
     )
     prompt = f"""Current axis values:
 {axis_descriptions}
@@ -135,13 +150,27 @@ Only include axes that should change. Example: {{"weight": 0.3, "geometry": -0.2
 
     try:
         result = subprocess.run(
-            ["claude", "-p", prompt,
-             "--system-prompt", "You are an axis adjuster. Map user creative direction to numeric axis deltas. Return only valid JSON.",
-             "--output-format", "text", "--max-turns", "1"],
-            capture_output=True, text=True, timeout=30,
+            [
+                "claude",
+                "-p",
+                prompt,
+                "--system-prompt",
+                "You are an axis adjuster. Map user creative direction to numeric axis deltas. Return only valid JSON.",
+                "--output-format",
+                "text",
+                "--max-turns",
+                "1",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=30,
         )
         if result.returncode != 0:
-            log.error("_nudge_call: claude exited %d: %s", result.returncode, result.stderr.strip())
+            log.error(
+                "_nudge_call: claude exited %d: %s",
+                result.returncode,
+                result.stderr.strip(),
+            )
             return None
         raw = result.stdout.strip()
         if raw.startswith("```"):
@@ -180,7 +209,11 @@ def _ensure_job_file(sdir: Path, node: dict, session: dict | None = None) -> Non
     if not job_file.exists():
         seed_base = round_num * 100
         mutation_idx = {s: i for i, s in enumerate(_CHILD_SUFFIXES)}
-        suffix = node["id"].rsplit("-", 1)[-1] if "-" in node["id"] else node["id"].lstrip("v")
+        suffix = (
+            node["id"].rsplit("-", 1)[-1]
+            if "-" in node["id"]
+            else node["id"].lstrip("v")
+        )
         if suffix in mutation_idx:
             seed = seed_base + mutation_idx[suffix]
         else:
@@ -190,6 +223,7 @@ def _ensure_job_file(sdir: Path, node: dict, session: dict | None = None) -> Non
             try:
                 sys.path.insert(0, str(IDNA_DIR))
                 from templates import get_template  # type: ignore[import-not-found]
+
                 tmpl = get_template(session.get("template", "avatar"))
                 w, h = _ratio_dims(session, tmpl, final=False)
             except Exception:
@@ -231,6 +265,7 @@ def _create_child_nodes(
     sys.path.insert(0, str(IDNA_DIR))
     try:
         from templates import get_template  # type: ignore[import-not-found]
+
         tmpl = get_template(session.get("template", "avatar"))
     except Exception as exc:
         log.error("_create_child_nodes: failed to load template: %s", exc)
@@ -240,7 +275,9 @@ def _create_child_nodes(
     anchor = session.get("anchor", "")
     width = session.get("width", 3)
     child_round = parent_node["round"] + 1
-    base_params = override_params if override_params is not None else parent_node["params"]
+    base_params = (
+        override_params if override_params is not None else parent_node["params"]
+    )
     parent_round = parent_node["round"]
 
     reroll_n = 0
@@ -255,9 +292,12 @@ def _create_child_nodes(
     if not seed_suffix or seed_suffix.startswith(":r"):  # not a nudge
         try:
             from .pbo import suggest_candidates
+
             _axis_names = [ax["name"] for ax in vocabulary.get("axes", [])]
             _seed = hash(parent_id + seed_suffix) & 0x7FFFFFFF
-            pbo_params_list = suggest_candidates(session, width, _axis_names, seed=_seed)
+            pbo_params_list = suggest_candidates(
+                session, width, _axis_names, seed=_seed
+            )
         except Exception:
             pbo_params_list = None
 
@@ -302,11 +342,15 @@ def _create_child_nodes(
             log.info("PBO node %s (round %d)", child_id, child_round)
             continue  # skip mutation path
 
-        mutation = tmpl.child_mutation_key(i, base_params, vocabulary, parent_round, width, reroll=reroll_n)
+        mutation = tmpl.child_mutation_key(
+            i, base_params, vocabulary, parent_round, width, reroll=reroll_n
+        )
         # Salt only for legacy (non-axis) templates
         salt = "" if mutation.startswith("axis:") else (f":{i // 3}" if i >= 3 else "")
         try:
-            params = tmpl.mutate(base_params, mutation, vocabulary, parent_id + salt + seed_suffix)
+            params = tmpl.mutate(
+                base_params, mutation, vocabulary, parent_id + salt + seed_suffix
+            )
             prompt = tmpl.build_prompt(params, anchor)
         except Exception as exc:
             log.error("_create_child_nodes: mutation failed for %s: %s", child_id, exc)
@@ -324,7 +368,12 @@ def _create_child_nodes(
             "anchor": anchor,
         }
         _ensure_job_file(sdir, nodes[child_id], session)
-        log.info("Created on-demand node %s (round %d, mutation=%s)", child_id, child_round, mutation)
+        log.info(
+            "Created on-demand node %s (round %d, mutation=%s)",
+            child_id,
+            child_round,
+            mutation,
+        )
 
     session["nodes"] = nodes
     return session
@@ -376,13 +425,15 @@ def _build_daemon_jobs(
         out_path = round_dir / f"{nid}.png"
         job_file = round_dir / "prompts" / f"{nid}.json"
         jdata = json.loads(job_file.read_text()) if job_file.exists() else {}
-        jobs.append({
-            "id": nid,
-            "embed_path": str(embed_path),
-            "out_path": str(out_path),
-            "seed": jdata.get("seed", round_num * 100),
-            "width": jdata.get("width", TREE_WIDTH),
-            "height": jdata.get("height", TREE_HEIGHT),
-            "steps": steps,
-        })
+        jobs.append(
+            {
+                "id": nid,
+                "embed_path": str(embed_path),
+                "out_path": str(out_path),
+                "seed": jdata.get("seed", round_num * 100),
+                "width": jdata.get("width", TREE_WIDTH),
+                "height": jdata.get("height", TREE_HEIGHT),
+                "steps": steps,
+            }
+        )
     return jobs

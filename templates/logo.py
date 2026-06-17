@@ -6,21 +6,69 @@ _EXCLUDED_AXES = {"type_weight", "type_style"}
 DEFAULT_ANCHOR = "logo, no letters, no text"
 
 DEFAULT_AXES = [
-    {"name": "abstraction",  "low": "literal, representational, figurative",   "high": "abstract, symbolic, non-representational"},
-    {"name": "geometry",     "low": "organic shapes, flowing curves, natural",  "high": "geometric, angular, grid-based, sharp"},
-    {"name": "complexity",   "low": "minimal, single shape, ultra-simple",      "high": "complex, layered, detailed mark"},
-    {"name": "weight",       "low": "thin lines, light, delicate",              "high": "bold, filled, heavy, solid"},
-    {"name": "energy",       "low": "static, stable, grounded",                 "high": "dynamic, motion, tension, forward"},
-    {"name": "style",        "low": "flat, 2D, clean vector",                   "high": "dimensional, depth, 3D-feel"},
-    {"name": "hue",          "low": "cool, blue-cyan dominant",                 "high": "warm, red-orange dominant"},
-    {"name": "saturation",   "low": "monochrome, black and white",              "high": "vibrant, full color, multicolor"},
-    {"name": "symmetry",     "low": "asymmetric, dynamic, off-balance",         "high": "symmetric, balanced, centred"},
-    {"name": "openness",     "low": "enclosed, contained, tight",               "high": "open, airy, breathing space"},
+    {
+        "name": "abstraction",
+        "low": "literal, representational, figurative",
+        "high": "abstract, symbolic, non-representational",
+    },
+    {
+        "name": "geometry",
+        "low": "organic shapes, flowing curves, natural",
+        "high": "geometric, angular, grid-based, sharp",
+    },
+    {
+        "name": "complexity",
+        "low": "minimal, single shape, ultra-simple",
+        "high": "complex, layered, detailed mark",
+    },
+    {
+        "name": "weight",
+        "low": "thin lines, light, delicate",
+        "high": "bold, filled, heavy, solid",
+    },
+    {
+        "name": "energy",
+        "low": "static, stable, grounded",
+        "high": "dynamic, motion, tension, forward",
+    },
+    {
+        "name": "style",
+        "low": "flat, 2D, clean vector",
+        "high": "dimensional, depth, 3D-feel",
+    },
+    {
+        "name": "hue",
+        "low": "cool, blue-cyan dominant",
+        "high": "warm, red-orange dominant",
+    },
+    {
+        "name": "saturation",
+        "low": "monochrome, black and white",
+        "high": "vibrant, full color, multicolor",
+    },
+    {
+        "name": "symmetry",
+        "low": "asymmetric, dynamic, off-balance",
+        "high": "symmetric, balanced, centred",
+    },
+    {
+        "name": "openness",
+        "low": "enclosed, contained, tight",
+        "high": "open, airy, breathing space",
+    },
 ]
 
 DEFAULT_AXIS_PRIORITY = [
-    "abstraction", "geometry", "complexity", "weight", "energy",
-    "style", "hue", "saturation", "symmetry", "openness",
+    "abstraction",
+    "geometry",
+    "complexity",
+    "weight",
+    "energy",
+    "style",
+    "hue",
+    "saturation",
+    "symmetry",
+    "openness",
 ]
 
 

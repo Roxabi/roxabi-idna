@@ -18,7 +18,9 @@ class VoiceTemplate(BaseTemplate):
     def _clamp(self, v, lo=0.1, hi=1.5):
         return max(lo, min(hi, v))
 
-    def mutate(self, parent_params: dict, mutation: str, vocabulary: dict, parent_id: str) -> dict:
+    def mutate(
+        self, parent_params: dict, mutation: str, vocabulary: dict, parent_id: str
+    ) -> dict:
         p = dict(parent_params)
         vocab = vocabulary.get("mutation_vocab", {})
 
@@ -32,7 +34,12 @@ class VoiceTemplate(BaseTemplate):
         elif mutation == "blend":
             weight = vocab.get("blend", {}).get("weight", 0.5)
             contrast_name = None
-            base_name = p.get("pole_name", "").replace("-blended", "").replace("-amplified", "").replace("-refined", "")
+            base_name = (
+                p.get("pole_name", "")
+                .replace("-blended", "")
+                .replace("-amplified", "")
+                .replace("-refined", "")
+            )
             for pole in vocabulary.get("poles", []):
                 if pole["name"] == base_name:
                     contrast_name = pole.get("contrast")
@@ -44,7 +51,10 @@ class VoiceTemplate(BaseTemplate):
                     break
             if contrast_params:
                 for k in ["pace", "warmth", "energy", "brightness"]:
-                    p[k] = self._clamp(p[k] * (1 - weight) + float(contrast_params.get(k, 0.5)) * weight)
+                    p[k] = self._clamp(
+                        p[k] * (1 - weight)
+                        + float(contrast_params.get(k, 0.5)) * weight
+                    )
             p["pole_name"] = p["pole_name"] + "-blended"
 
         elif mutation == "refine":
@@ -58,13 +68,15 @@ class VoiceTemplate(BaseTemplate):
 
     def build_prompt(self, params: dict, anchor: str) -> str:
         sample = anchor
-        return json.dumps({
-            "sample": sample,
-            "pace": params["pace"],
-            "warmth": params["warmth"],
-            "energy": params["energy"],
-            "brightness": params["brightness"],
-        })
+        return json.dumps(
+            {
+                "sample": sample,
+                "pace": params["pace"],
+                "warmth": params["warmth"],
+                "energy": params["energy"],
+                "brightness": params["brightness"],
+            }
+        )
 
     def artifact_path(self, node_id: str, round_num: int) -> str:
         return f"round_{round_num}/{node_id}.wav"

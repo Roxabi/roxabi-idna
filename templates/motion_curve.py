@@ -21,7 +21,9 @@ class MotionCurveTemplate(BaseTemplate):
     def _clamp(self, v, lo=0, hi=1):
         return max(lo, min(hi, v))
 
-    def mutate(self, parent_params: dict, mutation: str, vocabulary: dict, parent_id: str) -> dict:
+    def mutate(
+        self, parent_params: dict, mutation: str, vocabulary: dict, parent_id: str
+    ) -> dict:
         p = dict(parent_params)
         if mutation == "amplify":
             p["x1"] = self._clamp(p["x1"] * 0.5)
@@ -67,12 +69,12 @@ class MotionCurveTemplate(BaseTemplate):
   .track {{ background: #1a1a1a; border-radius: 4px; height: 48px; margin-bottom: 0.75rem; position: relative; overflow: hidden; }}
   .ball {{ position: absolute; left: 4px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; border-radius: 50%; background: #fff; animation: slide {dur}s {easing} infinite alternate; }}
   .ball:nth-child(2) {{ animation-delay: {stagger}s; background: #aaa; top: calc(50% - 8px); width: 16px; height: 16px; }}
-  .ball:nth-child(3) {{ animation-delay: {stagger*2}s; background: #666; top: calc(50% + 4px); width: 10px; height: 10px; }}
+  .ball:nth-child(3) {{ animation-delay: {stagger * 2}s; background: #666; top: calc(50% + 4px); width: 10px; height: 10px; }}
   @keyframes slide {{ from {{ left: 4px; }} to {{ left: calc(100% - 28px); }} }}
 </style>
 </head>
 <body>
-<h2>{p['pole_name']}</h2>
+<h2>{p["pole_name"]}</h2>
 <code>{easing} · {dur}s · stagger {stagger}s</code>
 <div class="track"><div class="ball"></div><div class="ball"></div><div class="ball"></div></div>
 <div class="track"><div class="ball"></div><div class="ball"></div><div class="ball"></div></div>

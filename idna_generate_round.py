@@ -40,7 +40,9 @@ MODEL = "black-forest-labs/FLUX.2-klein-4B"
 def phase1_encode(jobs: list[dict], embeds_dir: Path) -> None:
     """Load text encoder only, encode all prompts, save to disk."""
     pending = [j for j in jobs if not (embeds_dir / f"{j['id']}.pt").exists()]
-    print(f"Phase 1 — Encode {len(pending)} prompt(s) ({len(jobs) - len(pending)} cached)")
+    print(
+        f"Phase 1 — Encode {len(pending)} prompt(s) ({len(jobs) - len(pending)} cached)"
+    )
     if not pending:
         return
 
@@ -63,17 +65,23 @@ def phase1_encode(jobs: list[dict], embeds_dir: Path) -> None:
             },
             embeds_dir / f"{job['id']}.pt",
         )
-        print(f"  [{i+1}/{len(pending)}] {job['id']} — {time.time()-t0:.0f}s elapsed")
+        print(
+            f"  [{i + 1}/{len(pending)}] {job['id']} — {time.time() - t0:.0f}s elapsed"
+        )
 
     del pipe
     free()
-    print(f"  Done in {time.time()-t0:.0f}s  VRAM: {vram()}")
+    print(f"  Done in {time.time() - t0:.0f}s  VRAM: {vram()}")
 
 
-def phase2_generate(jobs: list[dict], embeds_dir: Path, out_dir: Path, steps: int) -> None:
+def phase2_generate(
+    jobs: list[dict], embeds_dir: Path, out_dir: Path, steps: int
+) -> None:
     """Load transformer + VAE only, generate all images from cached embeddings."""
     pending = [j for j in jobs if not (out_dir / f"{j['id']}.png").exists()]
-    print(f"\nPhase 2 — Generate {len(pending)} image(s) ({len(jobs) - len(pending)} done)")
+    print(
+        f"\nPhase 2 — Generate {len(pending)} image(s) ({len(jobs) - len(pending)} done)"
+    )
     if not pending:
         return
 
@@ -88,8 +96,10 @@ def phase2_generate(jobs: list[dict], embeds_dir: Path, out_dir: Path, steps: in
     freeze(pipe.transformer)
 
     _orig = QLinear.forward
+
     def _cont(self, inp):  # noqa: ANN001, ANN202
         return _orig(self, inp.contiguous())
+
     QLinear.forward = _cont
 
     pipe.transformer.to("cuda")
@@ -120,9 +130,11 @@ def phase2_generate(jobs: list[dict], embeds_dir: Path, out_dir: Path, steps: in
 
         elapsed = time.time() - t0
         rate = (i + 1) / elapsed
-        print(f"  [{i+1}/{len(pending)}] {job['id']} saved  {rate:.2f} img/s")
+        print(f"  [{i + 1}/{len(pending)}] {job['id']} saved  {rate:.2f} img/s")
 
-    print(f"\n  Done: {len(pending)} images in {int((time.time()-t0)/60)}m {int((time.time()-t0)%60)}s")
+    print(
+        f"\n  Done: {len(pending)} images in {int((time.time() - t0) / 60)}m {int((time.time() - t0) % 60)}s"
+    )
 
 
 def main() -> None:

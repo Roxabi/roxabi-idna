@@ -48,16 +48,23 @@ def _regen_winner_hires(project: str, subject: str, winner_id: str) -> None:
         return
 
     # Generate via daemon
-    log.info("Re-generating winner %s at %dx%d via daemon...", winner_id, FINAL_WIDTH, FINAL_HEIGHT)
-    daemon_jobs = [{
-        "id": winner_id,
-        "embed_path": str(embed_path),
-        "out_path": str(hires_dir / f"{winner_id}.png"),
-        "seed": seed,
-        "width": FINAL_WIDTH,
-        "height": FINAL_HEIGHT,
-        "steps": 40,
-    }]
+    log.info(
+        "Re-generating winner %s at %dx%d via daemon...",
+        winner_id,
+        FINAL_WIDTH,
+        FINAL_HEIGHT,
+    )
+    daemon_jobs = [
+        {
+            "id": winner_id,
+            "embed_path": str(embed_path),
+            "out_path": str(hires_dir / f"{winner_id}.png"),
+            "seed": seed,
+            "width": FINAL_WIDTH,
+            "height": FINAL_HEIGHT,
+            "steps": 40,
+        }
+    ]
     result = _daemon_generate(daemon_jobs)
     if not result.get("ok"):
         log.error("Hi-res re-gen failed: %s", result.get("error"))
