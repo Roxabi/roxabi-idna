@@ -16,7 +16,6 @@ uv run pre-commit install --hook-type pre-push    # license check on push
 Optional but useful:
 
 - **imageCLI checkout** — image templates (`avatar`, `logo`, `icon_set`) talk to the imageCLI daemon over a Unix socket. Without it, you can still develop/test html/text templates (`color_palette`, `motion_curve`, `voice`, `ui_component`) end-to-end.
-- **Supervisor hub** — clone `roxabi-plugins` next to this repo so `make idna start` can dispatch through `~/projects/hub.mk`.
 
 Smoke test:
 

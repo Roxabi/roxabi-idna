@@ -50,7 +50,7 @@ idna_generate_round.py               generate a round of images         (PEP 723
 - **State endpoints** — return JSON `{ok: true, ...}` / `{ok: false, error: "..."}` . Status always `200` for JSON (client inspects `ok`). `404` only for unknown routes.
 - **Binary endpoints** — `.png` with `Content-Type: image/png` served directly from `$IDNA_DATA/...`.
 - **Mutation-as-query** — all state changes are `GET` with query params (browser picker is plain links). Idempotent-ish: server is single-user so replay is acceptable.
-- **No auth** — listens on localhost only; relies on supervisord + machine-local access.
+- **No auth** — listens on localhost only; relies on machine-local access.
 
 ## Data Access Rules
 
