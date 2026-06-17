@@ -37,7 +37,6 @@ Reviews use Conventional Comments format:
 - **Handler additions** — new `handle_*` functions in `idna/api*.py` must update `idna/server.py` routing *and* the HTML/JS picker code (`idna/html_picker_js_actions.py`).
 - **High-res regen** — changes to `idna/hires.py` or `FINAL_WIDTH` / `FINAL_HEIGHT` must be tested against one real session end-to-end before merging.
 - **Dependencies** — new entries in `[project.dependencies]` need a justification in the PR (we aim to keep runtime deps tiny: numpy + scipy only). Dev deps (`[dependency-groups].dev`) are freer.
-- **Supervisor conf** — `plugins/idna/supervisor/conf.d/idna.conf` lives in `roxabi-plugins`, not here. Changes to supervisor behaviour need a cross-repo coordination note.
 
 ## AI Quick Reference
 

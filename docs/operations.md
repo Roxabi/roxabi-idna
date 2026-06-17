@@ -35,28 +35,13 @@ Override with env: `IDNA_DIR` (code root) and `IDNA_DATA` (session root).
 
 ---
 
-## Supervisord
-
-Program name pattern: `idna-<project>-<subject>`  
-Example: `idna-lyra-avatar`
+## Running the Service
 
 ```bash
-# Via lyra-stack Makefile
-make idna                       # status of all idna-* programs
-make idna start                 # start idna-lyra-avatar
-make idna stop
-make idna reload
-make idna logs
-make idna errlogs
-
-# Direct supervisorctl
-supervisorctl start idna-lyra-avatar
-supervisorctl status idna-lyra-avatar
-supervisorctl tail -f idna-lyra-avatar
+uv run idna_server.py    # start picker on http://localhost:8082/
 ```
 
-Conf lives at: `~/projects/conf.d/idna.conf`  
-`autostart=false` — start manually when needed, stop when done.
+Stop with `Ctrl-C`. Start manually when a session is needed; stop when done. Session data persists in `$IDNA_DATA` across restarts.
 
 ---
 

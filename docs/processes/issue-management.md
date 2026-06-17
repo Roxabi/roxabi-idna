@@ -42,7 +42,7 @@ Note: for this single-service Python repo, `frontend` means the minimal browser 
 
 `.github/ISSUE_TEMPLATE/` is not yet populated. Recommended templates when we get there:
 
-- **Bug report** — reproduction (session + template + axis values), expected vs actual, logs from `make idna errlogs`, host (`roxabitower` / `roxabituwer`).
+- **Bug report** — reproduction (session + template + axis values), expected vs actual, stderr from `uv run idna_server.py`, host (`roxabitower` / `roxabituwer`).
 - **Feature request** — target artifact type (avatar/logo/palette/…), why existing templates don't cover it, proposed axes.
 - **Template proposal** — new `templates/<name>.py` with axes spec, sample prompts, expected `artifact_type`.
 

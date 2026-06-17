@@ -20,7 +20,7 @@ Project-specific frontend conventions. Agents read this via `{standards.frontend
 
 ## Conventions
 
-- **No build step** — edits to HTML/CSS/JS take effect on next `make idna reload`. Don't add a bundler.
+- **No build step** — edits to HTML/CSS/JS take effect on next server restart (`uv run idna_server.py`). Don't add a bundler.
 - **No frameworks** — vanilla DOM APIs only. No jQuery, no Alpine, no HTMX. Event handlers via `element.addEventListener(...)`.
 - **Single CSS file per page** — no CSS modules, no SASS. Use CSS custom properties for theming (already used for dark/light).
 - **Indent + multiline** — the HTML/JS strings are meant to be read. Keep indentation in the Python multiline strings, don't minify.
