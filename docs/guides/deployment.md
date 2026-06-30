@@ -14,7 +14,7 @@ Project-specific deployment procedures. Agents read this via `{standards.deploym
 | **Dev** | `roxabitower` (Pop!_OS, RTX 5070 Ti) | Running interactive sessions while picking candidates |
 | **Prod** | `roxabituwer` (Ubuntu Server, RTX 3080) | Always-on picker when needed |
 
-Both hosts clone this repo to `~/projects/roxabi-idna` and manage the service via `make idna …` (systemd user unit).
+Both hosts clone this repo to `~/projects/roxabi-idna` and run the picker via `make run` (foreground).
 
 ## Deploy Process
 
@@ -27,11 +27,8 @@ git fetch origin
 git checkout main
 git pull --ff-only
 uv sync                          # refresh dev + runtime deps
-make install-service             # once, or after unit file changes
-make idna reload                 # restart if running
+make run                         # restart = stop (Ctrl+C) then make run again
 ```
-
-Unit file: `deploy/systemd/idna.service` → `~/.config/systemd/user/idna.service`.
 
 ## Promotion
 
@@ -54,15 +51,15 @@ Never hard-code host-specific paths.
 
 ## Monitoring & Health Checks
 
-- **Logs** — `make idna logs` / `make idna errlogs` (journalctl).
+- **Logs** — stdout/stderr of the foreground `make run` process.
 - **Health** — no HTTP health endpoint. Liveness = port `8082` accepting connections. A quick check:
   ```bash
   curl -fsS http://localhost:8082/ >/dev/null && echo up || echo down
   ```
-- **Session inventory** — `make idna ls` lists session dirs under `$IDNA_DATA`.
-- **Uptime** — `Restart=on-failure` on the `idna` systemd user unit.
+- **Session inventory** — `make ls` lists session dirs under `$IDNA_DATA`.
+- **Uptime** — manual; no auto-restart (on-demand tool).
 - **GPU use** — this repo never uses the GPU directly. Generation load shows up under the imageCLI `imagecli-gen` Quadlet worker.
 
 ## Rollback
 
-Because deploys are `git pull` + `make idna reload`, rollback is `git checkout <prev-sha> && make idna reload`. Session data is untouched (lives in `$IDNA_DATA`, not the repo).
+Because deploys are `git pull` + restart `make run`, rollback is `git checkout <prev-sha>` then `make run` again. Session data is untouched (lives in `$IDNA_DATA`, not the repo).

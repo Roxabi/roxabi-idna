@@ -35,25 +35,15 @@ Override with env: `IDNA_DIR` (code root) and `IDNA_DATA` (session root).
 
 ---
 
-## Service management
+## Running
 
-Local-only — runs as a systemd user unit (`idna.service`), not Quadlet.
+Local-only — foreground process, not Quadlet.
 
 ```bash
-make install-service            # once: install unit from deploy/systemd/idna.service
-make idna start                 # start picker on :8082
-make idna stop
-make idna reload
-make idna logs
-make idna errlogs
-
-# Direct systemctl
-systemctl --user start idna
-systemctl --user status idna
-journalctl --user -u idna -f
+make run                        # picker on :8082 (Ctrl+C to stop)
 ```
 
-Start manually when needed, stop when done.
+Start when you need a session, stop with Ctrl+C.
 
 ---
 

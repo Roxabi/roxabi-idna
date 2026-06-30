@@ -100,7 +100,7 @@ async function loadStatus() {
     const allReady = variants.length > 0 && variants.every(n => n.status === 'ready');
     if (data.gen_status === 'idle' && allReady) stopPolling();
   } catch(e) {
-    if (++_failCount >= 3) showError('IDNA server offline \u2014 run: make idna start');
+    if (++_failCount >= 3) showError('IDNA server offline \u2014 run: make run');
   }
 }
 
