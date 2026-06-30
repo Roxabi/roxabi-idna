@@ -35,13 +35,25 @@ Override with env: `IDNA_DIR` (code root) and `IDNA_DATA` (session root).
 
 ---
 
-## Running the Service
+## Service management
+
+Local-only — runs as a systemd user unit (`idna.service`), not Quadlet.
 
 ```bash
-uv run idna_server.py    # start picker on http://localhost:8082/
+make install-service            # once: install unit from deploy/systemd/idna.service
+make idna start                 # start picker on :8082
+make idna stop
+make idna reload
+make idna logs
+make idna errlogs
+
+# Direct systemctl
+systemctl --user start idna
+systemctl --user status idna
+journalctl --user -u idna -f
 ```
 
-Stop with `Ctrl-C`. Start manually when a session is needed; stop when done. Session data persists in `$IDNA_DATA` across restarts.
+Start manually when needed, stop when done.
 
 ---
 
