@@ -16,6 +16,7 @@ uv run pre-commit install --hook-type pre-push    # license check on push
 Optional but useful:
 
 - **imageCLI checkout** — image templates (`avatar`, `logo`, `icon_set`) talk to the imageCLI daemon over a Unix socket. Without it, you can still develop/test html/text templates (`color_palette`, `motion_curve`, `voice`, `ui_component`) end-to-end.
+- **imageCLI worker** — generation rounds call `imagecli-gen` (Quadlet on M₂). Ensure `systemctl --user start imagecli-gen` when testing full rounds locally.
 
 Smoke test:
 

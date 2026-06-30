@@ -96,10 +96,7 @@ def _daemon_blend(inputs: list[dict], out_path: str, timeout: int = 30) -> dict:
     sock.settimeout(timeout)
     try:
         sock.connect(str(DAEMON_SOCK))
-        payload = (
-            json.dumps({"action": "blend", "inputs": inputs, "out_path": out_path})
-            + "\n"
-        )
+        payload = json.dumps({"action": "blend", "inputs": inputs, "out_path": out_path}) + "\n"
         sock.sendall(payload.encode())
         buf = bytearray()
         while True:
@@ -130,22 +127,21 @@ def _daemon_ping() -> bool:
 
 
 def _daemon_ensure_running(timeout: int = 60) -> bool:
-    """Ensure the imageCLI daemon is running, starting it via supervisorctl if needed.
+    """Ensure the imageCLI daemon is running, starting the Quadlet unit if needed.
 
     Returns True if daemon is ready, False if it failed to start within timeout.
     """
     if _daemon_ping():
         return True
 
-    log.info("imageCLI daemon not running — starting imagecli_gen via supervisorctl...")
+    log.info("imageCLI daemon not running — starting imagecli-gen via systemctl...")
     try:
         subprocess.run(
-            ["supervisorctl", "start", "imagecli_gen"],
-            capture_output=True,
-            timeout=10,
+            ["systemctl", "--user", "start", "imagecli-gen"],
+            capture_output=True, timeout=10,
         )
     except Exception as exc:
-        log.error("supervisorctl start imagecli_gen failed: %s", exc)
+        log.error("systemctl --user start imagecli-gen failed: %s", exc)
         return False
 
     deadline = time.time() + timeout

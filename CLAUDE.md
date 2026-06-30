@@ -19,7 +19,7 @@ Data split: `IDNA_DIR` = repo code, `IDNA_DATA` = session artifacts (outside rep
 
 ## Docs
 
-- [docs/operations.md](docs/operations.md) — ops runbook (run mode, logs, data dirs)
+- [docs/operations.md](docs/operations.md) — ops runbook (systemd, logs, data dirs)
 - [docs/session-schema.md](docs/session-schema.md) — layout of `$IDNA_DATA/<session>/`
 - [docs/architecture/index.md](docs/architecture/index.md) — design + layers
 - [docs/standards/](docs/standards/) — coding + testing conventions
@@ -29,8 +29,9 @@ Data split: `IDNA_DIR` = repo code, `IDNA_DATA` = session artifacts (outside rep
 ## Running
 
 ```bash
-uv run idna_server.py   # start picker on http://localhost:8082/
-make ls                 # list sessions in $IDNA_DATA
+make idna start      # systemd user unit (make install-service once)
+make idna logs       # journalctl follow
+make idna ls         # list sessions in $IDNA_DATA
 ```
 
 ## TL;DR

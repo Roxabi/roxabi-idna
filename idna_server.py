@@ -1,4 +1,4 @@
-"""Entry point — kept at this path for supervisor compatibility."""
+"""Entry point — kept at repo root for systemd unit compatibility."""
 
 from idna.server import main
 
