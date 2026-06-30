@@ -220,7 +220,7 @@ def build_tree(session_dir: Path, depth: int) -> None:
 
     if tmpl.artifact_type == "image":
         print("\nNext steps:")
-        print("  1. make idna start  (server encodes+generates lazily per pick)")
+        print("  1. make run  (server encodes+generates lazily per pick)")
         print(
             f"  2. open http://localhost:8082/{session_dir.parent.name}/{session_dir.name}/"
         )

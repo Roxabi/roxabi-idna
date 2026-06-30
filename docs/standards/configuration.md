@@ -30,7 +30,7 @@ How the project is configured. Agents read this via `{standards.configuration}`.
 | `.github/workflows/*.yml` | CI, auto-merge, pr-title | Yes |
 | `.github/dependabot.yml` | Weekly pip + github-actions updates | Yes |
 | `types/*.toml` | Per-template vocabulary (axes, poles, priorities) | Yes |
-| `Makefile` | Supervisor dispatch (`make idna start`, …) + `ls` / `clean` helpers | Yes |
+| `Makefile` | `make run` (foreground server) + `ls` / `clean` helpers | Yes |
 
 ## Priority Chain
 
