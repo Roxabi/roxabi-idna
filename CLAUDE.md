@@ -36,7 +36,3 @@ make ls              # list sessions in $IDNA_DATA
 
 - **Project:** roxabi-idna
 - **Never** commit without asking or push without request
-
-## Gotchas
-
-<!-- Add project-specific gotchas here -->
