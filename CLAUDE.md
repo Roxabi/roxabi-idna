@@ -35,9 +35,7 @@ make ls              # list sessions in $IDNA_DATA
 ## TL;DR
 
 - **Project:** roxabi-idna
-- **Before work:** Use `/dev #N` as the single entry point — it determines tier and drives the full lifecycle
-- **Never** commit without asking, push without request, or use `--force`/`--hard`/`--amend`
-- **Always** use appropriate skill even without slash command
+- **Never** commit without asking or push without request
 
 ## Gotchas
 
